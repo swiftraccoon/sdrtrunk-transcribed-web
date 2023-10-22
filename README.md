@@ -7,7 +7,7 @@ https://github.com/swiftraccoon/cpp-sdrtrunk-transcriber
 ![Screenshot](Screenshot.png)
 
 -------------------------------------------------------------------------------
-Overview
+## Overview
 
 This web application is designed to serve transcriptions of audio files. It's built using Node.js with the Express framework and utilizes various other libraries and utilities. The application allows users to filter transcriptions based on different criteria like Radio IDs and Talkgroup IDs. It also provides an option to select different themes and auto-refresh intervals.
 Features
@@ -19,7 +19,7 @@ Features
     Auto-Refresh: The application can auto-refresh at a user-defined interval.
     Robots Exclusion: A robots.txt file is served to prevent web crawlers from indexing the application.
 
-Dependencies
+## Dependencies
 
     express: Web framework for Node.js
     fs: Node.js built-in file system module
@@ -29,8 +29,8 @@ Dependencies
     cookie-parser: Middleware for parsing cookies
     utility: Custom utility functions for the application
 
-How It Works
-Initialization
+## How It Works
+### Initialization
 
 The application initializes an Express app and sets up middleware for basic authentication and cookie parsing. It also serves static files from a public directory.
 Routing
@@ -38,22 +38,22 @@ Routing
     GET /robots.txt: Serves a robots.txt file to prevent web crawlers from indexing the site.
     GET /: The main route that handles the logic for filtering and sorting audio files and their transcriptions.
 
-Utility Functions
+### Utility Functions
 
     filterAndSortAudioFiles: Filters and sorts audio files based on user-selected criteria.
     getQueryParams: Extracts query parameters from the request object.
     getDefaultDateTime: Gets the default date and time for filtering.
     processDirectory: Processes a directory to get a list of audio files and their transcriptions.
 
-HTML Rendering
+### HTML Rendering
 
 The renderHTML function dynamically generates the HTML content based on the filtered and sorted list of transcriptions.
-Security Measures
+### Security Measures
 
     Basic HTTP authentication is implemented using the express-basic-auth library.
     Unauthorized access results in a 401 Unauthorized response, and the details are logged.
 
-Installation and Running
+### Installation and Running
 
     Clone the repository.
     Run npm install to install dependencies.
