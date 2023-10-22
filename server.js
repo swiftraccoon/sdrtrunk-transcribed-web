@@ -1,29 +1,18 @@
+// Import modules
 const express = require('express');
 const fs = require('fs');
 const moment = require('moment-timezone');
 const path = require('path');
-const app = express();
-const PORT = 3000;
-const PUBLIC_DIR = path.join(__dirname, 'public');
 const basicAuth = require('express-basic-auth');
 const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const { isWithinDateRange, extractDateFromFilename } = require('./utility');
 
 
-// Define your user(s) and password(s)
-const users = {
-    'read828': '828read',
-};
 
-
-app.use(basicAuth({
-    users: users,
-    challenge: true,  // Will display a pop-up asking for username/password
-    realm: 'TOP SECRET (NEBULA PINNACLE) https://nebpin.cia.gov/',
-    unauthorizedResponse: 'TOP SECRET (NEBULA PINNACLE) https://nebpin.cia.gov/ - 401 Unauthorized: Access is Restricted. Your details have been logged and forwarded.'
-}));
-
-
+// Constants
+const PORT = 3000;
+const PUBLIC_DIR = path.join(__dirname, 'public');
+const users = { 'user': 'pass' };
 const idDescriptionMap = {
     '41001': 'EMS',
     '41002': 'Fire Dept',
@@ -39,7 +28,6 @@ const idDescriptionMap = {
     '52540': 'RthfdHos VMF5/VMN',
     '': 'No Filter',
 };
-
 const radio_id_names = {
     "1610092": "FCPD Dispatch",
     "1610051": "Sheriff Dispatch",
@@ -53,105 +41,128 @@ const radio_id_names = {
 };
 
 
+
+// Initialize app
+const app = express();
+app.use(cookieParser());
+
+
+
+// Utility functions
+const formatDate = (dateObj) => moment(dateObj).format('YYYY-MM-DD');
+const formatTime = (dateObj) => moment(dateObj).format('HH:mm');
+
+const filterAndSortAudioFiles = (files, selectedRadioIds, selectedTalkgroupIds, startDate, endDate, dir) => {
+        console.log("Selected Talkgroup IDs: ", selectedTalkgroupIds);  // Debug log
+
+    return files
+        .filter(file => {
+            const radioIdMatch = file.match(/FROM_(\d+)\.mp3/);
+            if (!radioIdMatch) return false;
+            const radioId = radioIdMatch[1];
+
+            try {
+                return (selectedRadioIds.includes('') || selectedRadioIds.includes(radioId)) &&
+                       (selectedTalkgroupIds.includes('') || selectedTalkgroupIds.includes(dir)) &&  // Check this line
+                       file.endsWith('.mp3') &&
+                       isWithinDateRange(file, startDate, endDate);
+            } catch (error) {
+                console.error("Error in filterAndSortAudioFiles: ", error);  // Error handling
+                return false;
+            }
+        })
+        .sort((a, b) => extractDateFromFilename(b) - extractDateFromFilename(a));
+};
+
+const getQueryParams = (req) => ({
+    selectedRadioIds: req.query.radioIds ? [req.query.radioIds] : [''],
+    selectedTalkgroupIds: req.query.talkgroupIds ? [req.query.talkgroupIds] : [''],
+    userSelectedTheme: req.query.theme || req.cookies.theme || 'gray',
+    autoRefreshEnabled: req.query.autoRefresh === 'true',
+    refreshRate: req.query.refreshRate ? parseInt(req.query.refreshRate, 10) : 5
+});
+
+const getDefaultDateTime = () => {
+    const now = moment().tz("America/New_York");
+    const eightHoursAgo = now.clone().subtract(2, 'hours');
+    const tomorrow = moment().add(1, 'days');
+    return {
+        defaultStartDate: formatDate(eightHoursAgo),
+        defaultStartTime: formatTime(eightHoursAgo),
+        defaultEndDate: formatDate(tomorrow),
+        defaultEndTime: formatTime(tomorrow)
+    };
+};
+
+const processDirectory = async (dir, selectedRadioIds, selectedTalkgroupIds, startDate, endDate) => {
+    const dirPath = path.join(PUBLIC_DIR, 'audio', dir);
+    const files = await fs.promises.readdir(dirPath);
+    const audioFiles = filterAndSortAudioFiles(files, selectedRadioIds, selectedTalkgroupIds, startDate, endDate, dir);
+    const transcriptions = [];
+
+    for (const file of audioFiles) {
+        const transcriptionPath = path.join(PUBLIC_DIR, 'transcriptions', dir, file.replace('.mp3', '.txt'));
+        const transcription = fs.existsSync(transcriptionPath) ? await fs.promises.readFile(transcriptionPath, 'utf-8') : "Transcription not found";
+        transcriptions.push({
+            id: dir,
+            audio: `/public/audio/${dir}/${file}`,
+            transcription,
+            timestamp: extractDateFromFilename(file)
+        });
+    }
+
+    return transcriptions;
+};
+
+
+
+// Middleware
+app.use(basicAuth({
+    users: users,
+    challenge: true,  // Will display a pop-up asking for username/password
+    realm: 'TOP SECRET (NEBULA PINNACLE) https://nebpin.cia.gov/',
+    unauthorizedResponse: 'TOP SECRET (NEBULA PINNACLE) https://nebpin.cia.gov/ - 401 Unauthorized: Access is Restricted. Your details have been logged and forwarded.'
+}));
+app.use('/public', express.static(PUBLIC_DIR));
+
+
+
+// Route handlers
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.send("User-agent: *\nDisallow: /");
 });
 
+app.get('/', async (req, res, next) => {
+    const { selectedRadioIds, selectedTalkgroupIds, userSelectedTheme, autoRefreshEnabled, refreshRate } = getQueryParams(req);
 
-app.use('/public', express.static(PUBLIC_DIR));
-
-
-function isWithinDateRange(fileName, startDate, endDate) {
-    let dateMatch = fileName.match(/(\d{4}\d{2}\d{2})_(\d{2}\d{2}\d{2})/);
-    if (!dateMatch) return false;
-
-    let fileDateTimeStr = `${dateMatch[1].slice(0, 4)}-${dateMatch[1].slice(4, 6)}-${dateMatch[1].slice(6, 8)}T${dateMatch[2].slice(0, 2)}:${dateMatch[2].slice(2, 4)}:${dateMatch[2].slice(4, 6)}Z`;
-    let fileDateTime = new Date(fileDateTimeStr);
-    
-    if (startDate && fileDateTime < startDate) return false;
-    if (endDate && fileDateTime > endDate) return false;
-    
-    return true;
-}
-
-
-function extractDateFromFilename(fileName) {
-    let dateMatch = fileName.match(/\d{4}\d{2}\d{2}_\d{2}\d{2}\d{2}/);
-    if (!dateMatch) return new Date(0); // if the filename does not have a date, return a default old date
-
-    let fileDateStr = dateMatch[0].slice(0, 4) + '-' + dateMatch[0].slice(4, 6) + '-' + dateMatch[0].slice(6, 8) + 'T' + dateMatch[0].slice(9, 11) + ':' + dateMatch[0].slice(11, 13) + ':' + dateMatch[0].slice(13, 15) + 'Z';
-    return new Date(fileDateStr);
-}
-
-
-app.get('/', (req, res, next) => {
-    let selectedRadioIds = req.query.radioIds ? [req.query.radioIds] : [''];
-    let selectedTalkgroupIds = req.query.talkgroupIds ? [req.query.talkgroupIds] : [''];
-
-    let userSelectedTheme;  // Declare the variable first
-
-    // If the user has selected a theme, update the cookie
     if (req.query.theme) {
         res.cookie('theme', req.query.theme);
-        userSelectedTheme = req.query.theme;
-    } else {
-        userSelectedTheme = req.cookies.theme || 'gray'; // Default to 'gray' if no theme cookie
     }
 
-    let now = moment().tz("America/New_York");
-    let tomorrow = moment().add(1, 'days');
-    let eightHoursAgo = now.clone().subtract(2, 'hours');
+    const { defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime } = getDefaultDateTime();
 
-    let defaultEndDate = tomorrow.format('YYYY-MM-DD');
-    let defaultEndTime = tomorrow.format('HH:mm');
-
-    let defaultStartDate = eightHoursAgo.format('YYYY-MM-DD');
-    let defaultStartTime = eightHoursAgo.format('HH:mm');
-
-    // Capture the auto-refresh parameters from the request's query
-    let autoRefreshEnabled = req.query.autoRefresh === 'true';
-    let refreshRate = req.query.refreshRate ? parseInt(req.query.refreshRate, 10) : 5;  // Default to 5 minutes
-
-    let startDate = req.query.startDate_date && req.query.startDate_time 
-        ? new Date(`${req.query.startDate_date}T${req.query.startDate_time}Z`) 
+    const startDate = req.query.startDate_date && req.query.startDate_time 
+        ? new Date(`${req.query.startDate_date}T${req.query.startDate_time}Z`)
         : new Date(`${defaultStartDate}T${defaultStartTime}Z`);
 
-    let endDate = req.query.endDate_date && req.query.endDate_time 
-        ? new Date(`${req.query.endDate_date}T${req.query.endDate_time}Z`) 
+    const endDate = req.query.endDate_date && req.query.endDate_time 
+        ? new Date(`${req.query.endDate_date}T${req.query.endDate_time}Z`)
         : new Date(`${defaultEndDate}T${defaultEndTime}Z`);
 
-    let dirs = fs.readdirSync(path.join(PUBLIC_DIR, 'audio'));
-    let transcriptionsList = [];
+    const dirs = await fs.promises.readdir(path.join(PUBLIC_DIR, 'audio'));
+    const transcriptionsList = await Promise.all(dirs.map(dir => processDirectory(dir, selectedRadioIds, selectedTalkgroupIds, startDate, endDate)));
+    const flattenedTranscriptions = transcriptionsList.flat();
 
-    dirs.forEach(dir => {
-        let audioFiles = fs.readdirSync(path.join(PUBLIC_DIR, 'audio', dir))
-            .filter(file => {
-                let radioIdMatch = file.match(/FROM_(\d+)\.mp3/);
-                if (!radioIdMatch) return false;
-                let radioId = radioIdMatch[1];
-                return (selectedRadioIds.includes('') || selectedRadioIds.includes(radioId)) && (selectedTalkgroupIds.includes('') || selectedTalkgroupIds.includes(dir)) && file.endsWith('.mp3') && isWithinDateRange(file, startDate, endDate);
-            })
-            .sort((a, b) => extractDateFromFilename(b) - extractDateFromFilename(a));
-
-        audioFiles.forEach(file => {
-            let transcriptionPath = path.join(PUBLIC_DIR, 'transcriptions', dir, file.replace('.mp3', '.txt'));
-            transcriptionsList.push({
-                id: dir,
-                audio: `/public/audio/${dir}/${file}`,
-                transcription: fs.existsSync(transcriptionPath) ? fs.readFileSync(transcriptionPath, 'utf-8') : "Transcription not found",
-                timestamp: extractDateFromFilename(file)
-            });
-        });
-    });
-
-    // Sort the entire list by timestamp
-    transcriptionsList.sort((a, b) => b.timestamp - a.timestamp);
+    flattenedTranscriptions.sort((a, b) => b.timestamp - a.timestamp);
 
     res.set('Cache-Control', 'no-store');
-    res.send(renderHTML(transcriptionsList, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, userSelectedTheme));
+    res.send(renderHTML(flattenedTranscriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, userSelectedTheme));
 });
 
+
+
+// HTML rendering function
 function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, theme){
     const themeCSSLink = {
         gray: "public/gray.css",
@@ -169,11 +180,13 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
         </head>
         <body>
         <!-- Title header -->
-        <center><h3><a href="https://www.broadcastify.com/calls/node/1">Node 1: Node</a><br /></h3>
+        <center><h3><a href="https://www.broadcastify.com/calls/node/1">Node 1: 1111</a><br /></h3>
         <div class="transcription">
             <button class="collapsible">Information</button>
             <div class="collapsed">
-                <h4>Some text</h4>
+                <h4>Transcribed by AI; could be entirely incorrect.<br />
+                Audio >=9 seconds in duration recorded for transcription.<br />
+                Recordings processed and rsync at interval of every 1 minute.</h4>
             </div>
         </div>
                <form action="/" method="get">
@@ -202,7 +215,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
             <div class="transcription">
                 <button class="collapsible">Broadcastify Links</button>
                     <div class="collapsed">
-                        List links to the talkgroup IDs on Broadcastify for easy following if you want.
+                        Some links 
             </div>
                 <div class="transcription">
                     <div class="content">
