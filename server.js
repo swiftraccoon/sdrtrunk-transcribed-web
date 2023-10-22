@@ -391,7 +391,48 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                         }
                     });
                 });
-                function updateTGIDFilterAndRefresh(tgid) {
+                function updateTGIDFil
+                Run npm test
+                
+                > sdr-node-site@1.0.0 test
+                > mocha --exit
+                
+                Server is running on http://localhost:3000
+                
+                
+                  Server Tests
+                    1) "before all" hook for "should return 200 OK for the root path"
+                    2) "after all" hook for "should return 200 OK for the root path"
+                
+                
+                  0 passing (5ms)
+                  2 failing
+                
+                  1) Server Tests
+                       "before all" hook for "should return 200 OK for the root path":
+                     Uncaught Error: listen EADDRINUSE: address already in use :::3000
+                      at Server.setupListenHandle [as _listen2] (node:net:1817:16)
+                      at listenInCluster (node:net:1865:12)
+                      at Server.listen (node:net:1953:7)
+                      at Function.listen (node_modules/express/lib/application.js:635:24)
+                      at Context.<anonymous> (test/server.test.js:13:18)
+                      at process.processImmediate (node:internal/timers:476:21)
+                
+                  2) Server Tests
+                       "after all" hook for "should return 200 OK for the root path":
+                     Error [ERR_SERVER_NOT_RUNNING]: Server is not running.
+                      at new NodeError (node:internal/errors:405:5)
+                      at Server.close (node:net:2161:12)
+                      at Object.onceWrapper (node:events:631:28)
+                      at Server.emit (node:events:517:28)
+                      at emitCloseNT (node:net:2221:8)
+                      at processTicksAndRejections (node:internal/process/task_queues:81:21)
+                      at runNextTicks (node:internal/process/task_queues:64:3)
+                      at process.processImmediate (node:internal/timers:447:9)
+                
+                
+                
+                Error: Process completed with exit code 2.terAndRefresh(tgid) {
                     let url = new URL(window.location.href);
                     let params = new URLSearchParams(url.search);
                     params.set('talkgroupIds', tgid);
@@ -412,9 +453,13 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
 }
 
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//     console.log(`Server is running on http://localhost:${PORT}`);
+// });
 
 
-module.exports = app;
+const server = app.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
+  });
+  
+  module.exports = server;
