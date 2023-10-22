@@ -1,136 +1,117 @@
+/* Global Styles */
+:root {
+    --true-black: #000000;
+    --text-gray: #575656;
+    --hover-gray: #080808;
+    --border-gray: #212020;
+}
+
+/* Body and Text */
 body {
-    background-color: #000000; /* True Black */
-    color: #575656; 
+    background-color: var(--true-black);
+    color: var(--text-gray);
     font-family: 'Courier New', Courier, monospace;
     line-height: 1.6;
 }
 
+/* Links */
 a {
-    color: #575656;  /* Set the hyperlink text color to match the existing text color */
-    text-decoration: none;  /* Remove underline */
-    transition: color 0.3s ease;  /* Smooth transition for hover effect */
+    color: var(--text-gray);
+    text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 a:hover {
-    color: #080808;  /* Set the hyperlink text color when hovered to match the hover background color */
+    color: var(--hover-gray);
 }
 
-.flex-item {
-    margin-bottom: 10px; /* Add some space below each item */
-}
+/* Flexbox Layout */
 .flex-container {
     display: flex;
     flex-direction: column;
 }
-.label-container {
-    width: 100px; /* Adjust based on the width of your widest label */
-    display: inline-block;
-}
-audio {
-    background-color: #000000; /* Change to your preferred color */
+
+.flex-item {
+    margin-bottom: 10px;
 }
 
+.label-container {
+    display: inline-block;
+    width: 100px;
+}
+
+/* Audio Controls */
 .audio-player {
-    display: flex;
     align-items: center;
-    background-color: #000000;
+    background-color: var(--true-black);
+    display: flex;
 }
 
 #playPauseBtn {
     background-color: #353434;
-    color: #000000;
     border: none;
+    color: var(--true-black);
+    cursor: pointer;
     padding: 5px 10px;
-    cursor: pointer;
 }
 
-/* Hide default checkbox */
-#autoRefreshCheckbox {
-    appearance: none;
-    -webkit-appearance: none;
+/* Custom Checkboxes */
+#autoRefreshCheckbox, #specialTextToggle {
     -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
     background-color: #353434;
     border: 2px solid #555;
     border-radius: 4px;
-    width: 10px;
-    height: 10px;
     cursor: pointer;
-    outline: none;
-    position: relative;
-    vertical-align: middle;
-}
-
-#specialTextToggle {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-color: #353434;
-    border: 2px solid #555;
-    border-radius: 4px;
-    width: 20px;
     height: 20px;
-    cursor: pointer;
     outline: none;
     position: relative;
     vertical-align: middle;
+    width: 20px;
 }
 
-#autoRefreshCheckbox:checked::before {
-    content: '';
-    position: absolute;
-    left: 5px;
-    top: 2px;
-    width: 6px;
-    height: 12px;
+#autoRefreshCheckbox:checked::before, #specialTextToggle:checked::before {
     border: solid #fff;
     border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
-#specialTextToggle:checked::before {
     content: '';
-    position: absolute;
-    left: 5px;
-    top: 2px;
-    width: 6px;
     height: 12px;
-    border: solid #fff;
-    border-width: 0 2px 2px 0;
+    left: 5px;
+    position: absolute;
+    top: 2px;
     transform: rotate(45deg);
+    width: 6px;
 }
 
-/* Hide default spin buttons for number input in Firefox */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type="number"] {
-    -moz-appearance: textfield; /* Hide default spin buttons for number input in Chrome */
-}
-.transcription, .eventbox {
-    margin: 20px 0;
-    padding: 20px;
-    border: 1px solid #212020; /* Almost black, just a faint border for distinction */
+/* Form Elements */
+button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #refreshInterval, #specialTextToggle {
+    background-color: var(--true-black);
+    border: 1px solid var(--border-gray);
     border-radius: 5px;
-    background-color: #000000;
-}
-
-.collapsible {
+    color: var(--text-gray);
     cursor: pointer;
-    border: none;
-    outline: none;
-    text-align: left;
-    background-color: #000000; 
-    color: #575656;
-    padding: 10px 15px;
-    border: 1px solid #212020; /* Almost black for the border */
+    padding: 10px;
+    vertical-align: middle;
+}
+
+button:hover, select:hover {
+    background-color: var(--hover-gray);
+}
+
+/* Collapsible Sections */
+.collapsible {
+    background-color: var(--true-black);
+    border: 1px solid var(--border-gray);
     border-radius: 5px;
+    color: var(--text-gray);
+    cursor: pointer;
+    outline: none;
+    padding: 10px 15px;
+    text-align: left;
 }
 
 .collapsible:hover {
-    background-color: #080808; /* Slight variation on hover */
+    background-color: var(--hover-gray);
 }
 
 .collapsed {
@@ -139,66 +120,44 @@ input[type="number"] {
     transition: max-height 0.2s ease-out;
 }
 
-.audio-controls {
-    margin-top: 10px;
-}
-
-h3, h4 {
-    margin-top: 0;
-    color: #575656;
-}
-
-button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #refreshInterval, #specialTextToggle {
+/* Miscellaneous Styles */
+.transcription, .eventbox {
+    background-color: var(--true-black);
+    border: 1px solid var(--border-gray);
     border-radius: 5px;
-    cursor: pointer;
-    background-color: #000000;
-    color: #575656;
-    border: 1px solid #212020;
-    padding: 10px;
-    vertical-align: middle;
-}
-
-button:hover, select:hover {
-    background-color: #080808;
-}
-
-.filterButton {
-    padding: 6px 55px;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #000000;
-    color: #575656;
-    border: 1px solid #212020;
-}
-
-.dateDisplay-text {
-    background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
-    color: transparent; /* This makes the text color transparent, showing only the background */
-    -webkit-background-clip: text; /* Makes the background only apply to the text */
-    background-clip: text;
-    display: inline; /* This will make the background only as wide as the text itself */
+    margin: 20px 0;
+    padding: 20px;
 }
 
 .separator {
+    background: linear-gradient(to right, var(--true-black), var(--border-gray), var(--true-black));
     height: 2px;
-    background: linear-gradient(to right, #000000, #212020, #000000); 
     margin: 20px 0;
 }
 
-.filter_button_separator {
-    height: 2px;
-    background: linear-gradient(to right, transparent, #444, transparent);
-    margin: 5px 0;
+/* Text and Headers */
+h3, h4 {
+    color: var(--text-gray);
+    margin-top: 0;
 }
 
+.dateDisplay-text {
+    background-clip: text;
+    background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
+    color: transparent;
+    display: inline;
+    -webkit-background-clip: text;
+}
+
+/* Form Layout */
 form {
-    display: flex;
     align-items: center;
+    background-color: var(--true-black);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    display: flex;
     gap: 10px;
     padding: 10px;
-    border: 1px solid #212020;
-    border-radius: 8px;
-    background-color: #000000; 
 }
 
 form > label {

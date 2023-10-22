@@ -1,136 +1,143 @@
+/* Global Styles */
+:root {
+    --dark-bg: #080808;
+    --light-gray: #e1e1e1;
+    --medium-gray: #333;
+    --dark-gray: #444;
+}
+
 body {
-    background-color: #080808; /* Darker background color */
-    color: #e1e1e1;
+    background-color: var(--dark-bg);
+    color: var(--light-gray);
     font-family: 'Open Sans', sans-serif;
     line-height: 1.6;
 }
 
+/* Links */
 a {
-    color: #333;  /* Set the hyperlink text color */
-    text-decoration: none;  /* Remove underline */
-    transition: color 0.3s ease;  /* Smooth transition for hover effect */
+    color: var(--medium-gray);
+    text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 a:hover {
-    color: #444;  /* Set the hyperlink text color when hovered */
+    color: var(--dark-gray);
 }
 
-.flex-item {
-    margin-bottom: 10px; /* Add some space below each item */
-}
+/* Flexbox Layout */
 .flex-container {
     display: flex;
     flex-direction: column;
 }
-.label-container {
-    width: 100px; /* Adjust based on the width of your widest label */
-    display: inline-block;
-}
-audio {
-    background-color: #111111; /* Change to your preferred color */
+
+.flex-item {
+    margin-bottom: 10px;
 }
 
-.audio-player {
+/* Form Elements */
+button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #refreshInterval, #specialTextToggle {
+    background-color: var(--medium-gray);
+    border: 1px solid var(--dark-gray);
+    border-radius: 5px;
+    color: var(--light-gray);
+    cursor: pointer;
+    padding: 10px;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    vertical-align: middle;
+}
+
+/* Form Layout */
+form {
+    align-items: center;
+    background-color: #1f1f1f;
+    border: 1px solid var(--dark-gray);
+    border-radius: 8px;
     display: flex;
+    gap: 10px;
+    padding: 10px;
+}
+
+form:hover {
+    background-color: #2a2a2a;
+}
+
+form > label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* Custom Checkboxes */
+#autoRefreshCheckbox, #specialTextToggle {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--medium-gray);
+    border: 2px solid #555;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 20px;
+    outline: none;
+    position: relative;
+    vertical-align: middle;
+    width: 20px;
+}
+
+#autoRefreshCheckbox:checked::before, #specialTextToggle:checked::before {
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    content: '';
+    height: 12px;
+    left: 5px;
+    position: absolute;
+    top: 2px;
+    transform: rotate(45deg);
+    width: 6px;
+}
+
+/* Audio Controls */
+.audio-player {
     align-items: center;
     background-color: #111111;
+    display: flex;
 }
 
 #playPauseBtn {
     background-color: #353434;
+    border: none;
     color: #111111;
-    border: none;
+    cursor: pointer;
     padding: 5px 10px;
-    cursor: pointer;
-}
-/* Hide default checkbox */
-#autoRefreshCheckbox {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-color: #333;
-    border: 2px solid #555;
-    border-radius: 4px;
-    width: 10px;
-    height: 10px;
-    cursor: pointer;
-    outline: none;
-    position: relative;
-    vertical-align: middle;
 }
 
-#specialTextToggle {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-color: #333;
-    border: 2px solid #555;
-    border-radius: 4px;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    outline: none;
-    position: relative;
-    vertical-align: middle;
+/* Text and Headers */
+h3, h4 {
+    color: #f1f1f1;
+    margin-top: 0;
 }
 
-#autoRefreshCheckbox:checked::before {
-    content: '';
-    position: absolute;
-    left: 5px;
-    top: 2px;
-    width: 6px;
-    height: 12px;
-    border: solid #fff;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
+.dateDisplay-text {
+    background-clip: text;
+    background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
+    color: transparent;
+    display: inline;
+    -webkit-background-clip: text;
 }
 
-#specialTextToggle:checked::before {
-    content: '';
-    position: absolute;
-    left: 5px;
-    top: 2px;
-    width: 6px;
-    height: 12px;
-    border: solid #fff;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
-/* Hide default spin buttons for number input in Firefox */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type="number"] {
-    -moz-appearance: textfield; /* Hide default spin buttons for number input in Chrome */
-}
-.transcription, .eventbox {
-    margin: 20px 0;
-    padding: 20px;
-    border: 1px solid #3a3a3a;
-    border-radius: 5px;
-    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.3);
-    background-color: #111111; /* Slightly lighter than the main background */
-}
-
+/* Collapsible Sections */
 .collapsible {
-    cursor: pointer;
+    background-color: var(--medium-gray);
     border: none;
-    outline: none;
-    text-align: left;
-    background-color: #333; /* Darker shade of blue */
-    color: #e1e1e1; /* Light gray */
-    padding: 10px 15px;
     border-radius: 5px;
+    color: var(--light-gray);
+    cursor: pointer;
+    outline: none;
+    padding: 10px 15px;
+    text-align: left;
     transition: background-color 0.3s ease;
 }
 
 .collapsible:hover {
-    background-color: #444; /* Even darker on hover */
+    background-color: var(--dark-gray);
 }
 
 .collapsed {
@@ -139,76 +146,28 @@ input[type="number"] {
     transition: max-height 0.2s ease-out;
 }
 
-.audio-controls {
-    margin-top: 10px;
-}
-
-h3, h4 {
-    margin-top: 0;
-    color: #f1f1f1; /* Lighter shade of gray for headers */
-}
-
-.dateDisplay-text {
-    background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
-    color: transparent; /* This makes the text color transparent, showing only the background */
-    -webkit-background-clip: text; /* Makes the background only apply to the text */
-    background-clip: text;
-    display: inline; /* This will make the background only as wide as the text itself */
-}
-
-button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #refreshInterval, #specialTextToggle {
-    /* Updated common styles for form elements for a consistent dark look */
-    border-radius: 5px;
-    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-    background-color: #333; /* Darker background */
-    color: #e1e1e1; /* Light gray color */
-    border: 1px solid #444; /* Slightly lighter border for visibility */
-    padding: 10px;
-    vertical-align: middle;
-}
-
-button:hover, select:hover {
-    background-color: #444; /* Even darker on hover */
-}
-
-.filterButton {
-    padding: 6px 55px;
-    border: none;
-    border-radius: 5px;
-    background-color: #333;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.separator {
+/* Miscellaneous Styles */
+.separator, .filter_button_separator {
+    background: linear-gradient(to right, transparent, var(--dark-gray), transparent);
     height: 2px;
-    background: linear-gradient(to right, transparent, #444, transparent); /* Made separator darker */
     margin: 20px 0;
 }
 
-.filter_button_separator {
-    height: 2px;
-    background: linear-gradient(to right, transparent, #444, transparent);
-    margin: 5px 0;
+.transcription, .eventbox {
+    background-color: #111111;
+    border: 1px solid #3a3a3a;
+    border-radius: 5px;
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.3);
+    margin: 20px 0;
+    padding: 20px;
 }
 
-form {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    border: 1px solid #444;
-    border-radius: 8px;
-    background-color: #1f1f1f; /* Darker background for the form */
-}
-
-form:hover {
-    background-color: #2a2a2a; /* Slightly brighter on hover */
-}
-
-form > label {
-    font-weight: bold;
-    margin-right: 5px;
+.filterButton {
+    background-color: var(--medium-gray);
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+    padding: 6px 55px;
+    transition: background-color 0.3s ease;
 }
