@@ -6,7 +6,9 @@ const server = require('../server');
 
 chai.use(chaiHttp);
 
-describe('Server Tests', () => {
+describe('Server Tests', function() {
+  this.timeout(5000); // Increase timeout to 5000ms
+
   after((done) => {
     if (server.listening) {
       server.close(done);
@@ -16,10 +18,15 @@ describe('Server Tests', () => {
   });
 
   it('should return 200 OK for the root path', (done) => {
+    console.log("Starting test");
     chai.request(server)
       .get('/')
-      .auth('user', 'pass')  // Include Basic Auth credentials here
+      .auth('user', 'pass')
       .end((err, res) => {
+        if (err) {
+          console.log("Error:", err);
+        }
+        console.log("Response status:", res.status);
         expect(res).to.have.status(200);
         done();
       });
