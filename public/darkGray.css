@@ -4,6 +4,13 @@
     --light-gray: #e1e1e1;
     --medium-gray: #333;
     --dark-gray: #444;
+    --teal: #1abc9c;
+    --tealhover: #55f3d3;
+    --blue: #3498db;
+    --purple: #9b59b6;
+    --orange: #e67e22;
+    --red: #e74c3c;
+    --green: #2ecc71;
 }
 
 body {
@@ -15,13 +22,13 @@ body {
 
 /* Links */
 a {
-    color: var(--medium-gray);
+    color: var(--teal);
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 a:hover {
-    color: var(--dark-gray);
+    color: var(--tealhover);
 }
 
 /* Flexbox Layout */

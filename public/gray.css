@@ -49,7 +49,7 @@ a:hover {
 }
 
 #playPauseBtn {
-    background-color: #353434;
+    background-color: #0260c5;
     border: none;
     color: var(--box-bg);
     cursor: pointer;
@@ -73,7 +73,7 @@ a:hover {
 }
 
 #autoRefreshCheckbox:checked::before, #specialTextToggle:checked::before {
-    border: solid #fff;
+    border: solid #0260c5;
     border-width: 0 2px 2px 0;
     content: '';
     height: 12px;
@@ -87,9 +87,9 @@ a:hover {
 /* Form Elements */
 button, input[type="date"], input[type="time"] {
     background-color: var(--box-bg);
-    border: 1px solid #3a3a3a;
+    border: 1px solid #007BFF;
     border-radius: 5px;
-    color: var(--light-gray);
+    color: var(--link-color);
     cursor: pointer;
     padding: 10px;
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;

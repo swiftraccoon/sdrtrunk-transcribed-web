@@ -16,7 +16,7 @@ body {
 
 /* Links */
 a {
-    color: var(--text-gray);
+    color: #003b46;
     text-decoration: none;
     transition: color 0.3s ease;
 }
@@ -48,9 +48,9 @@ a:hover {
 }
 
 #playPauseBtn {
-    background-color: #353434;
-    border: none;
-    color: var(--true-black);
+    background-color: #ff0000;
+    border: #e60a0a;
+    color: #ff0000;
     cursor: pointer;
     padding: 5px 10px;
 }
@@ -86,7 +86,7 @@ a:hover {
 /* Form Elements */
 button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #refreshInterval, #specialTextToggle {
     background-color: var(--true-black);
-    border: 1px solid var(--border-gray);
+    border: 1px solid #4b4b4b;
     border-radius: 5px;
     color: var(--text-gray);
     cursor: pointer;
@@ -95,7 +95,7 @@ button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #r
 }
 
 button:hover, select:hover {
-    background-color: var(--hover-gray);
+    background-color: #2e2e2e;
 }
 
 /* Collapsible Sections */
