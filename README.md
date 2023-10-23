@@ -1,3 +1,4 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/swiftraccoon/sdrtrunk-transcribed-web/badge)](https://www.codefactor.io/repository/github/swiftraccoon/sdrtrunk-transcribed-web)
 # sdrtrunk-transcribed-web
 Node.JS website to display audio and transcriptions from one of the following apps:
 
