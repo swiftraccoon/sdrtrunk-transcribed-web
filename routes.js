@@ -2,8 +2,6 @@ const searchTranscriptions = require('./search');
 const sendEmail = require('./email');
 const express = require('express');
 const router = express.Router();
-const searchTranscriptions = require('./search');
-const sendEmail = require('./email');
 const db = require('./database');
 const { generateConfirmationId, getQueryParams, getDefaultDateTime } = require('./utility');
 
