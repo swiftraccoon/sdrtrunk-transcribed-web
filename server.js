@@ -108,7 +108,29 @@ const processDirectory = async (dir, selectedRadioIds, selectedTalkgroupIds, sta
     return transcriptions;
 };
 
+// Function to get all verified and enabled subscriptions from the database
+const getVerifiedSubscriptions = () => {
+    return new Promise((resolve, reject) => {
+      db.all(`SELECT regex, email FROM subscriptions WHERE verified = TRUE AND enabled = TRUE`, [], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+};
 
+// Function to check new transcriptions and send email if they match any regex pattern
+const checkTranscriptionsAndSendEmail = async (newTranscription) => {
+    const subscriptions = await getVerifiedSubscriptions();
+    subscriptions.forEach(sub => {
+      const regex = new RegExp(sub.regex);
+      if (regex.test(newTranscription)) {
+        sendEmail(sub.email, 'New Matching Transcription', `A new transcription matches your pattern: ${newTranscription}`);
+      }
+    });
+};
 
 // Middleware
 app.use(basicAuth({

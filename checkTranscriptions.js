@@ -34,32 +34,30 @@ async function checkNewTranscriptions() {
       const filePath = path.join(transcriptionDir, file);
       const transcription = fs.readFileSync(filePath, 'utf8');
 
-      // Check against regex patterns in the database
-      db.all(`SELECT * FROM subscriptions WHERE enabled = TRUE AND verified = TRUE`, [], (err, rows) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
+      // Fetch all verified and enabled subscriptions from the database
+        db.all(`SELECT * FROM subscriptions WHERE verified = TRUE AND enabled = TRUE`, [], async (err, rows) => {
+            if (err) {
+            return console.error(err.message);
+            }
 
-        getVerifiedSubscriptions((subscriptions) => {
-            subscriptions.forEach((subscription) => {
-              const regex = new RegExp(subscription.regex, 'i');
-              newTranscriptions.forEach((transcription) => {
-                if (regex.test(transcription.text)) {
-                  sendEmail(
-                    subscription.email,
-                    'New Transcription Match',
-                    `A new transcription matches your subscription: ${transcription.text}`
-                  );
+            // Loop through each subscription
+            for (const row of rows) {
+            const { id, regex, email } = row;
+
+            // Fetch new transcriptions (you'll need to implement this function)
+            const newTranscriptions = await fetchNewTranscriptions();
+
+            // Loop through each new transcription
+            for (const transcription of newTranscriptions) {
+                // Check if the transcription matches the regex pattern
+                if (new RegExp(regex).test(transcription.text)) {
+                // Send email (you'll need to implement or use your existing sendEmail function)
+                sendEmail(email, 'New Transcription Match', `New matching transcription: ${transcription.text}`);
                 }
-              });
-            });
-          });
-
-    // Update the last checked file
-    lastCheckedFile = files[files.length - 1];
-  });
-}
+            }
+            }
+        });
+    });
 
 // Run the function every 10 minutes (600000 milliseconds)
 setInterval(checkNewTranscriptions, 600000);
