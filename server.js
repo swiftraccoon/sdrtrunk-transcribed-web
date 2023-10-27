@@ -6,20 +6,8 @@ const path = require('path');
 const basicAuth = require('express-basic-auth');
 const cookieParser = require('cookie-parser');
 const { isWithinDateRange, extractDateFromFilename } = require('./utility');
-const { searchTranscriptions } = require('./search');
-const db = require('./database');
-const { sendEmail } = require('./email');
+const searchTranscriptions = require('./search');
 
-// Initialize SQLite database table if it doesn't exist
-db.run(`CREATE TABLE IF NOT EXISTS subscriptions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    regex TEXT NOT NULL,
-    email TEXT NOT NULL,
-    verified BOOLEAN DEFAULT FALSE,
-    enabled BOOLEAN DEFAULT TRUE,
-    ip TEXT,
-    browser TEXT
-  );`);
 
 // Constants
 const PORT = 3000;
@@ -37,12 +25,12 @@ const radio_id_names = {
 };
 
 
+
 // Initialize app
 const app = express();
 app.use(cookieParser());
 
 
-// Utility functions
 const formatDate = (dateObj) => moment(dateObj).format('YYYY-MM-DD');
 const formatTime = (dateObj) => moment(dateObj).format('HH:mm');
 
@@ -108,43 +96,21 @@ const processDirectory = async (dir, selectedRadioIds, selectedTalkgroupIds, sta
     return transcriptions;
 };
 
-// Function to get all verified and enabled subscriptions from the database
-const getVerifiedSubscriptions = () => {
-    return new Promise((resolve, reject) => {
-      db.all(`SELECT regex, email FROM subscriptions WHERE verified = TRUE AND enabled = TRUE`, [], (err, rows) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows);
-        }
-      });
-    });
-};
 
-// Function to check new transcriptions and send email if they match any regex pattern
-const checkTranscriptionsAndSendEmail = async (newTranscription) => {
-    const subscriptions = await getVerifiedSubscriptions();
-    subscriptions.forEach(sub => {
-      const regex = new RegExp(sub.regex);
-      if (regex.test(newTranscription)) {
-        sendEmail(sub.email, 'New Matching Transcription', `A new transcription matches your pattern: ${newTranscription}`);
-      }
-    });
-};
 
 // Middleware
 app.use(basicAuth({
     users: users,
     challenge: true,  // Will display a pop-up asking for username/password
-    realm: 'TOP SECRET (NEBULA PINNACLE) https://nebpin.cia.gov/',
-    unauthorizedResponse: 'TOP SECRET (NEBULA PINNACLE) https://nebpin.cia.gov/ - 401 Unauthorized: Access is Restricted. Your details have been logged and forwarded.'
+    realm: 'hi',
+    unauthorizedResponse: 'hihi'
 }));
 app.use('/public', express.static(PUBLIC_DIR));
 
 
 
 // Route handlers
-app.get('/robots.txt', (res) => {
+app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.send("User-agent: *\nDisallow: /");
 });
@@ -176,6 +142,8 @@ app.get('/', async (req, res) => {
     res.send(renderHTML(flattenedTranscriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, userSelectedTheme));
 });
 
+
+
 app.get('/search', async (req, res) => {
     const query = req.query.q;
     if (!query) {
@@ -186,44 +154,15 @@ app.get('/search', async (req, res) => {
     res.send(results);
 });
 
-app.get('/confirm', (req, res) => {
-    const { id } = req.query;
-    db.run(`UPDATE subscriptions SET verified = TRUE WHERE id = ?`, [id], function (err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        res.json({ changes: this.changes });
-    });
-});
 
-app.post('/subscribe', (req, res) => {
-    const { regex, email, ip, browser } = req.body;
-    db.run(`INSERT INTO subscriptions (regex, email, ip, browser) VALUES (?, ?, ?, ?)`, [regex, email, ip, browser], function (err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        sendEmail(email, 'Confirm Subscription', `Please confirm your subscription for regex: ${regex}`);
-        res.json({ id: this.lastID });
-    });
-});
-
-app.post('/unsubscribe', (req, res) => {
-    const { regex, email } = req.body;
-    db.run(`UPDATE subscriptions SET enabled = FALSE WHERE regex = ? AND email = ?`, [regex, email], function (err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        res.json({ changes: this.changes });
-    });
-});
 
 // HTML rendering function
 function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, theme) {
     const themeCSSLink = {
-        gray: "public/gray.css",
-        darkGray: "public/darkGray.css",
-        ultraDark: "public/ultraDark.css"
-    }[theme] || "public/gray.css"; // Use gray theme as default if theme is undefined or not matching.
+        gray: "http://sdr.spindale.host:3000/public/gray.css",
+        darkGray: "http://sdr.spindale.host:3000/public/darkGray.css",
+        ultraDark: "http://sdr.spindale.host:3000/public/ultraDark.css"
+    }[theme] || "http://sdr.spindale.host:3000/public/gray.css"; // Use gray theme as default if theme is undefined or not matching.    
     return `
         <!DOCTYPE html>
         <html lang="en">
@@ -235,7 +174,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
         </head>
         <body>
         <!-- Title header -->
-        <center><h3><a href="https://www.broadcastify.com/calls/node/1">Node 1: 1111</a><br /></h3>
+        <center><h3><a href="https://www.broadcastify.com/calls/node/2577">Node 2577: North Carolina VIPER</a><br /></h3>
         <!-- Search Box -->
         <div class="search-box">
         <form action="/search" method="get">
@@ -243,14 +182,6 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
             <button type="submit">Search</button>
         </form>
         </div><br />
-        <div class="transcription">
-            <button class="collapsible">Information</button>
-            <div class="collapsed">
-                <h4>Transcribed by AI; could be entirely incorrect.<br />
-                Audio >=9 seconds in duration recorded for transcription.<br />
-                Recordings processed and rsync at interval of every 1 minute.</h4>
-            </div>
-        </div>
                <form action="/" method="get">
                     <!-- Theme selector -->
                     <div style="display: inline-block; vertical-align: top; border-right: 2px solid #444; padding-right: 10px; margin-right: 10px;">
@@ -277,7 +208,16 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
             <div class="transcription">
                 <button class="collapsible">Broadcastify Links</button>
                     <div class="collapsed">
-                        Some links 
+                        <a href="https://www.broadcastify.com/calls/tg/7118/41001">41001:RuCoEMS</a> <br />
+                        <a href="https://www.broadcastify.com/calls/tg/7118/41002">41002:RuCoFD</a> <br />
+                        <a href="https://www.broadcastify.com/calls/tg/7118/41003">41003:RuCoSD</a> <br />
+                        <a href="https://www.broadcastify.com/calls/tg/7118/41013">41013:RPD</a> <br />
+                        <a href="https://www.broadcastify.com/calls/tg/7118/41020">41020:FCPD</a> <br />
+                        <a href="https://www.broadcastify.com/calls/tg/7118/51583">51583:MRTS/Statewide</a> <br />
+                        <a href="https://www.broadcastify.com/calls/tg/7118/52198">52198:NCSHP/TroopG/Dist2</a> <br />
+                        <a href="https://www.broadcastify.com/calls/tg/7118/52201">52201:NCSHP/TroopG/Dist5</a> <br />
+                        <a href="https://www.broadcastify.com/calls/tg/7118/52540">52540:RthfdHosVMF5/VMN</a> <br />
+                        Transcriptions that fall under group P are due to multiple talkgroups (almost always NCSHP)
             </div>
                 <div class="transcription">
                     <div class="content">
@@ -473,8 +413,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
     `;
 }
 
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-module.exports = server;
