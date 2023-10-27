@@ -132,6 +132,7 @@ app.post('/subscribe', async (req, res) => {
         await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\n\nClick this link to confirm: ${confirmationUrl}`);
         
         res.status(200).send('Subscription added');
+        res.status(200).json({ status: 'success' });
     } catch (error) {
         console.error("Error in /subscribe: ", error);
         res.status(500).send('Internal Server Error');
@@ -142,6 +143,7 @@ app.post('/unsubscribe', (req, res) => {
     const { email } = req.body;
     db.run(`UPDATE subscriptions SET enabled = FALSE WHERE email = ?`, [email]);
     res.send('Subscription disabled');
+    res.json({ status: 'success' });
 });
   
 app.get('/verify/:id', (req, res) => {
@@ -455,15 +457,53 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                 function subscribe() {
                     const regex = document.getElementById('regex').value;
                     const email = document.getElementById('email').value;
-                    // TODO: Validate regex and email
-                    // TODO: Make API call to /subscribe
-                  }
-                  
-                  function unsubscribe() {
+
+                    // AJAX call to subscribe
+                    fetch('/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ regex, email })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert('Subscription successful. Please check your email for confirmation.');
+                        } else {
+                            alert('Subscription failed. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+                    });
+                }
+
+                function unsubscribe() {
                     const email = document.getElementById('email').value;
-                    // TODO: Make API call to /unsubscribe
-                  }                  
-            </script>
+
+                    // AJAX call to unsubscribe
+                    fetch('/unsubscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert('Successfully unsubscribed.');
+                        } else {
+                            alert('Unsubscription failed. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+                    });
+                }
         </body>
         </html>
     `;
