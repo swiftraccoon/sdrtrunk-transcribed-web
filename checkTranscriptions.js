@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const db = require('./database');
 const { sendEmail } = require('./email');
+const { getVerifiedSubscriptions } = require('./database');
 
 let lastCheckedFile = null;
 
@@ -40,14 +41,20 @@ async function checkNewTranscriptions() {
           return;
         }
 
-        rows.forEach((row) => {
-          const regex = new RegExp(row.regex);
-          if (regex.test(transcription)) {
-            sendEmail(row.email, 'New Matched Transcription', `Filename: ${file}\nTranscription: ${transcription}`);
-          }
-        });
-      });
-    });
+        getVerifiedSubscriptions((subscriptions) => {
+            subscriptions.forEach((subscription) => {
+              const regex = new RegExp(subscription.regex, 'i');
+              newTranscriptions.forEach((transcription) => {
+                if (regex.test(transcription.text)) {
+                  sendEmail(
+                    subscription.email,
+                    'New Transcription Match',
+                    `A new transcription matches your subscription: ${transcription.text}`
+                  );
+                }
+              });
+            });
+          });
 
     // Update the last checked file
     lastCheckedFile = files[files.length - 1];

@@ -17,6 +17,7 @@
     "fingerprintjs": "^0.5.3",
     "fs": "^0.0.1-security",
     "moment-timezone": "^0.5.43",
+    "nodemailer": "^6.9.7",
     "path": "^0.12.7",
     "sqlite3": "^5.1.6",
     "useragent": "^2.3.0"
