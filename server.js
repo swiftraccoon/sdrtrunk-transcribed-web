@@ -105,6 +105,8 @@ const generateConfirmationId = () => {
 
 
 // Middleware
+// TODO: Implement a more secure authentication method
+//       preferably a login page than prompt
 app.use(basicAuth({
     users: users,
     challenge: true,  // Will display a pop-up asking for username/password
@@ -116,19 +118,30 @@ app.use('/public', express.static(PUBLIC_DIR));
 
 
 // Route handlers
-app.post('/subscribe', (req, res) => {
-    const confirmationId = generateConfirmationId();
-  db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`, 
-         [regex, email, ip, browser, confirmationId]);
-  const confirmationUrl = `http://yourdomain.com/verify/${confirmationId}`;
-  sendEmail(email, 'Confirm Subscription', `Click this link to confirm: ${confirmationUrl}`);
-  res.send('Subscription added');
+app.post('/subscribe', async (req, res) => {
+    try {
+        const { regex, email } = req.body;
+        const ip = req.ip;
+        const browser = req.headers['user-agent'];
+        const confirmationId = generateConfirmationId();
+        
+        await db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`, 
+            [regex, email, ip, browser, confirmationId]);
+        
+        const confirmationUrl = `http://yourdomain.com/verify/${confirmationId}`;
+        await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\n\nClick this link to confirm: ${confirmationUrl}`);
+        
+        res.status(200).send('Subscription added');
+    } catch (error) {
+        console.error("Error in /subscribe: ", error);
+        res.status(500).send('Internal Server Error');
+    }
 });
   
 app.post('/unsubscribe', (req, res) => {
     const { email } = req.body;
     db.run(`UPDATE subscriptions SET enabled = FALSE WHERE email = ?`, [email]);
-    res.send('Subscription removed');
+    res.send('Subscription disabled');
 });
   
 app.get('/verify/:id', (req, res) => {
