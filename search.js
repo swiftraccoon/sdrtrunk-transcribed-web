@@ -95,4 +95,4 @@ const watchDirectories = async () => {
 // Initialize cache and set up file watchers
 loadCache().then(watchDirectories);
 
-module.exports = searchTranscriptions;
+module.exports = { searchTranscriptions };
