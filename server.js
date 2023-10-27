@@ -116,8 +116,8 @@ app.use(basicAuth({
 app.use('/public', express.static(PUBLIC_DIR));
 
 
-
 // Route handlers
+// Subscribe
 app.post('/subscribe', async (req, res) => {
     try {
         const { regex, email } = req.body;
@@ -125,25 +125,31 @@ app.post('/subscribe', async (req, res) => {
         const browser = req.headers['user-agent'];
         const confirmationId = generateConfirmationId();
         
-        await db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`, 
+        const dbResult = await db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`, 
             [regex, email, ip, browser, confirmationId]);
+        console.log("DB Result:", dbResult);  // Debugging
         
         const confirmationUrl = `http://yourdomain.com/verify/${confirmationId}`;
-        await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\n\nClick this link to confirm: ${confirmationUrl}`);
+        await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\\n\\nClick this link to confirm: ${confirmationUrl}`);
         
-        res.status(200).send('Subscription added');
-        res.status(200).json({ status: 'success' });
+        res.status(200).json({ status: 'success' });  // Fixed response
     } catch (error) {
         console.error("Error in /subscribe: ", error);
         res.status(500).send('Internal Server Error');
     }
 });
-  
-app.post('/unsubscribe', (req, res) => {
-    const { email } = req.body;
-    db.run(`UPDATE subscriptions SET enabled = FALSE WHERE email = ?`, [email]);
-    res.send('Subscription disabled');
-    res.json({ status: 'success' });
+
+// Unsubscribe
+app.post('/unsubscribe', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const dbResult = await db.run(`UPDATE subscriptions SET enabled = FALSE WHERE email = ?`, [email]);
+        console.log("DB Result:", dbResult);  // Debugging
+        res.status(200).json({ status: 'success' });  // Fixed response
+    } catch (error) {
+        console.error("Error in /unsubscribe: ", error);
+        res.status(500).send('Internal Server Error');
+    }
 });
   
 app.get('/verify/:id', (req, res) => {
@@ -455,6 +461,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                     window.location.href = url.toString();
                 }
                 function subscribe() {
+                    console.log("Subscribe button clicked");
                     const regex = document.getElementById('regex').value;
                     const email = document.getElementById('email').value;
 
@@ -479,8 +486,8 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                         alert('An error occurred. Please try again.');
                     });
                 }
-
                 function unsubscribe() {
+                    console.log("Unsubscribe button clicked");
                     const email = document.getElementById('email').value;
 
                     // AJAX call to unsubscribe

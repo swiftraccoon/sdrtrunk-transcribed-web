@@ -49,8 +49,8 @@ const searchTranscriptions = async (query) => {
   const results = [];
   const lowerQuery = query.toLowerCase();
 
-  for (const [filePath, { content, dir, file }] of Object.entries(cache)) {
-    if (content.includes(lowerQuery)) {
+  for (const { content, dir, file } of Object.values(cache)) {
+    if (content.toLowerCase().includes(lowerQuery)) {
       results.push({
         dir,
         file,
