@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const db = require('./database');
+const sendEmail = require('./email');
 
 const checkTranscriptions = async () => {
   db.all(`SELECT * FROM subscriptions WHERE enabled = TRUE AND verified = TRUE`, [], (err, rows) => {
@@ -10,7 +11,7 @@ const checkTranscriptions = async () => {
     }
     rows.forEach((row) => {
       if (matchFound) {
-        sendEmail(row.email, 'New Transcription Match', `New transcription: ${filename}`);
+        sendEmail(row.email, 'New Transcription Match', `Transcription: ${filename}`);
       }
     });
   });

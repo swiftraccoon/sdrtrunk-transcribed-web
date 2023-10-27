@@ -98,6 +98,10 @@ const processDirectory = async (dir, selectedRadioIds, selectedTalkgroupIds, sta
     return transcriptions;
 };
 
+// Generate a unique confirmation ID (implement this function)
+const generateConfirmationId = () => {
+    return Math.random().toString(36).substring(2, 15);
+};
 
 
 // Middleware
@@ -113,12 +117,12 @@ app.use('/public', express.static(PUBLIC_DIR));
 
 // Route handlers
 app.post('/subscribe', (req, res) => {
-    // TODO: Validate regex and email
-    const { regex, email, ip, browser } = req.body;
-    db.run(`INSERT INTO subscriptions (regex, email, ip, browser) VALUES (?, ?, ?, ?)`, [regex, email, ip, browser]);
-    const confirmationId = generateConfirmationId(); // Implement this function to generate a unique ID
-    sendEmail(email, 'Confirm Subscription', `Click this link to confirm: http://yourdomain.com/verify/${confirmationId}`);
-    res.send('Subscription added');
+    const confirmationId = generateConfirmationId();
+  db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`, 
+         [regex, email, ip, browser, confirmationId]);
+  const confirmationUrl = `http://yourdomain.com/verify/${confirmationId}`;
+  sendEmail(email, 'Confirm Subscription', `Click this link to confirm: ${confirmationUrl}`);
+  res.send('Subscription added');
 });
   
 app.post('/unsubscribe', (req, res) => {
@@ -128,10 +132,16 @@ app.post('/unsubscribe', (req, res) => {
 });
   
 app.get('/verify/:id', (req, res) => {
-    const id = req.params.id;
-    db.run(`UPDATE subscriptions SET verified = TRUE WHERE id = ?`, [id]);
-    sendEmail(email, 'Subscription Verified', 'Your subscription has been verified.');
-    res.send('Email verified');
+    const confirmationId = req.params.id;
+    db.run(`UPDATE subscriptions SET verified = TRUE WHERE confirmationID = ?`, [confirmationId], function(err) {
+      if (err) {
+        return res.send('Error verifying email');
+      }
+      if (this.changes === 0) {
+        return res.send('Invalid confirmation ID');
+      }
+      res.send('Email verified');
+    });
 });
 
 app.get('/robots.txt', (req, res) => {
