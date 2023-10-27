@@ -6,8 +6,20 @@ const path = require('path');
 const basicAuth = require('express-basic-auth');
 const cookieParser = require('cookie-parser');
 const { isWithinDateRange, extractDateFromFilename } = require('./utility');
+const { searchTranscriptions } = require('./search');
+const db = require('./database');
+const { sendEmail } = require('./email');
 
-
+// Initialize SQLite database table if it doesn't exist
+db.run(`CREATE TABLE IF NOT EXISTS subscriptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    regex TEXT NOT NULL,
+    email TEXT NOT NULL,
+    verified BOOLEAN DEFAULT FALSE,
+    enabled BOOLEAN DEFAULT TRUE,
+    ip TEXT,
+    browser TEXT
+  );`);
 
 // Constants
 const PORT = 3000;
@@ -16,30 +28,13 @@ const users = { 'user': 'pass' };
 const idDescriptionMap = {
     '41001': 'EMS',
     '41002': 'Fire Dept',
-    '41003': 'Sheriff Dept',
-    '41013': 'RPD',
-    '41020': 'FCPD',
-    '51533': 'MedCenter Air Helo Dispatch',
-    '51583': 'Mission RTS',
-    '51981': 'GOLF 3 - SW Interop',
-    '52198': 'NCSHP/TroopG/Dist2',
-    '52199': 'NCSHP/TroopG/Dist3',
-    '52201': 'NCSHP/TroopG/Dist5',
-    '52540': 'RthfdHos VMF5/VMN',
     '': 'No Filter',
 };
 const radio_id_names = {
-    "1610092": "FCPD Dispatch",
-    "1610051": "Sheriff Dispatch",
-    "1610077": "EMS Dispatch",
-    "2499936": "NCSHP Dispatch 36",
-    "1610078": "RPD Dispatch",
     "1610018": "EMS CAD",
-    "2499937": "NCSHP Dispatch 37",
     "1610019": "FD CAD",
     "": "No Filter",
 };
-
 
 
 // Initialize app
@@ -47,13 +42,12 @@ const app = express();
 app.use(cookieParser());
 
 
-
 // Utility functions
 const formatDate = (dateObj) => moment(dateObj).format('YYYY-MM-DD');
 const formatTime = (dateObj) => moment(dateObj).format('HH:mm');
 
 const filterAndSortAudioFiles = (files, selectedRadioIds, selectedTalkgroupIds, startDate, endDate, dir) => {
-        console.log("Selected Talkgroup IDs: ", selectedTalkgroupIds);  // Debug log
+    //console.log("Selected Talkgroup IDs: ", selectedTalkgroupIds);  // Debug log
 
     return files
         .filter(file => {
@@ -63,9 +57,9 @@ const filterAndSortAudioFiles = (files, selectedRadioIds, selectedTalkgroupIds, 
 
             try {
                 return (selectedRadioIds.includes('') || selectedRadioIds.includes(radioId)) &&
-                       (selectedTalkgroupIds.includes('') || selectedTalkgroupIds.includes(dir)) &&  // Check this line
-                       file.endsWith('.mp3') &&
-                       isWithinDateRange(file, startDate, endDate);
+                    (selectedTalkgroupIds.includes('') || selectedTalkgroupIds.includes(dir)) &&  // Check this line
+                    file.endsWith('.mp3') &&
+                    isWithinDateRange(file, startDate, endDate);
             } catch (error) {
                 console.error("Error in filterAndSortAudioFiles: ", error);  // Error handling
                 return false;
@@ -128,12 +122,12 @@ app.use('/public', express.static(PUBLIC_DIR));
 
 
 // Route handlers
-app.get('/robots.txt', (req, res) => {
+app.get('/robots.txt', (res) => {
     res.type('text/plain');
     res.send("User-agent: *\nDisallow: /");
 });
 
-app.get('/', async (req, res, next) => {
+app.get('/', async (req, res) => {
     const { selectedRadioIds, selectedTalkgroupIds, userSelectedTheme, autoRefreshEnabled, refreshRate } = getQueryParams(req);
 
     if (req.query.theme) {
@@ -142,11 +136,11 @@ app.get('/', async (req, res, next) => {
 
     const { defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime } = getDefaultDateTime();
 
-    const startDate = req.query.startDate_date && req.query.startDate_time 
+    const startDate = req.query.startDate_date && req.query.startDate_time
         ? new Date(`${req.query.startDate_date}T${req.query.startDate_time}Z`)
         : new Date(`${defaultStartDate}T${defaultStartTime}Z`);
 
-    const endDate = req.query.endDate_date && req.query.endDate_time 
+    const endDate = req.query.endDate_date && req.query.endDate_time
         ? new Date(`${req.query.endDate_date}T${req.query.endDate_time}Z`)
         : new Date(`${defaultEndDate}T${defaultEndTime}Z`);
 
@@ -160,15 +154,54 @@ app.get('/', async (req, res, next) => {
     res.send(renderHTML(flattenedTranscriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, userSelectedTheme));
 });
 
+app.get('/search', async (req, res) => {
+    const query = req.query.q;
+    if (!query) {
+        return res.send('No query provided');
+    }
 
+    const results = await searchTranscriptions(query);
+    res.send(results);
+});
+
+app.get('/confirm', (req, res) => {
+    const { id } = req.query;
+    db.run(`UPDATE subscriptions SET verified = TRUE WHERE id = ?`, [id], function (err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ changes: this.changes });
+    });
+});
+
+app.post('/subscribe', (req, res) => {
+    const { regex, email, ip, browser } = req.body;
+    db.run(`INSERT INTO subscriptions (regex, email, ip, browser) VALUES (?, ?, ?, ?)`, [regex, email, ip, browser], function (err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        sendEmail(email, 'Confirm Subscription', `Please confirm your subscription for regex: ${regex}`);
+        res.json({ id: this.lastID });
+    });
+});
+
+app.post('/unsubscribe', (req, res) => {
+    const { regex, email } = req.body;
+    db.run(`UPDATE subscriptions SET enabled = FALSE WHERE regex = ? AND email = ?`, [regex, email], function (err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ changes: this.changes });
+    });
+});
 
 // HTML rendering function
-function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, theme){
+function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, theme) {
     const themeCSSLink = {
         gray: "public/gray.css",
         darkGray: "public/darkGray.css",
         ultraDark: "public/ultraDark.css"
-    }[theme] || "public/gray.css"; // Use gray theme as default if theme is undefined or not matching.    
+    }[theme] || "public/gray.css"; // Use gray theme as default if theme is undefined or not matching.
     return `
         <!DOCTYPE html>
         <html lang="en">
@@ -181,6 +214,13 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
         <body>
         <!-- Title header -->
         <center><h3><a href="https://www.broadcastify.com/calls/node/1">Node 1: 1111</a><br /></h3>
+        <!-- Search Box -->
+        <div class="search-box">
+        <form action="/search" method="get">
+            <input type="text" name="q" placeholder="Search transcriptions...">
+            <button type="submit">Search</button>
+        </form>
+        </div><br />
         <div class="transcription">
             <button class="collapsible">Information</button>
             <div class="collapsed">
@@ -253,9 +293,9 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                                         <div class="selector-container">
                                             <select name="radioIds" id="radioIds">
                                                 ${Object.keys(radio_id_names).map(radioId => {
-                                                    let isSelected = selectedRadioIds && selectedRadioIds.includes(radioId) ? 'selected' : '';
-                                                    return `<option value="${radioId}" ${isSelected}>${radio_id_names[radioId]}</option>`;
-                                                }).join('')}
+        let isSelected = selectedRadioIds && selectedRadioIds.includes(radioId) ? 'selected' : '';
+        return `<option value="${radioId}" ${isSelected}>${radio_id_names[radioId]}</option>`;
+    }).join('')}
                                             </select>
                                         </div>
                                     </div>
@@ -267,9 +307,9 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                                         <div class="selector-container">
                                             <select name="talkgroupIds" id="talkgroupIds">
                                                 ${Object.keys(idDescriptionMap).map(talkgroupId => {
-                                                    let isSelected = selectedTalkgroupIds && selectedTalkgroupIds.includes(talkgroupId) ? 'selected' : '';
-                                                    return `<option value="${talkgroupId}" ${isSelected}>${idDescriptionMap[talkgroupId]}</option>`;
-                                                }).join('')}
+        let isSelected = selectedTalkgroupIds && selectedTalkgroupIds.includes(talkgroupId) ? 'selected' : '';
+        return `<option value="${talkgroupId}" ${isSelected}>${idDescriptionMap[talkgroupId]}</option>`;
+    }).join('')}
                                             </select>
                                         </div>
                                         <div class="filter_button_separator"></div>
@@ -282,17 +322,17 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                         <!-- Build list of transcriptions -->
                         <div class="separator"></div>
                         ${transcriptions.map(t => {
-                            let ridMatch = t.transcription.match(/"(\d+)(?: \([^)]+\))?"/);  // Regular expression to find a sequence of digits, optionally followed by a description in parentheses
-                            let rid = ridMatch ? ridMatch[1] : 'Unknown';  // If a match is found, use it; otherwise, set to 'Unknown'
-                            let fileName = path.basename(t.audio, '.mp3');
-                            let dateMatch = fileName.match(/\d{4}\d{2}\d{2}_\d{2}\d{2}\d{2}/);
-                            let idDescription = idDescriptionMap[t.id] ? ` (${idDescriptionMap[t.id]})` : '';  // Get the description if available
-                            let ridDescription = radio_id_names[rid] ? ` (${radio_id_names[rid]})` : '';  // Get the description if available
+        let ridMatch = t.transcription.match(/"(\d+)(?: \([^)]+\))?"/);  // Regular expression to find a sequence of digits, optionally followed by a description in parentheses
+        let rid = ridMatch ? ridMatch[1] : 'Unknown';  // If a match is found, use it; otherwise, set to 'Unknown'
+        let fileName = path.basename(t.audio, '.mp3');
+        let dateMatch = fileName.match(/\d{4}\d{2}\d{2}_\d{2}\d{2}\d{2}/);
+        let idDescription = idDescriptionMap[t.id] ? ` (${idDescriptionMap[t.id]})` : '';  // Get the description if available
+        let ridDescription = radio_id_names[rid] ? ` (${radio_id_names[rid]})` : '';  // Get the description if available
 
-                            let dateDisplay = dateMatch 
-                                ? `${dateMatch[0].slice(0, 4)}-${dateMatch[0].slice(4, 6)}-${dateMatch[0].slice(6, 8)} ${dateMatch[0].slice(9, 11)}:${dateMatch[0].slice(11, 13)}:${dateMatch[0].slice(13, 15)} (TGID: <a href="javascript:void(0);" onclick="updateTGIDFilterAndRefresh('${t.id}')">${t.id}${idDescription}</a>, RID: <a href="javascript:void(0);" onclick="updateRIDFilterAndRefresh('${rid}')">${rid}${ridDescription}</a>)`  // Append the description
-                                : `Unknown Date (TGID: <a href="javascript:void(0);" onclick="updateTGIDFilterAndRefresh('${t.id}')">${t.id}${idDescription}</a>, RID: <a href="javascript:void(0);" onclick="updateRIDFilterAndRefresh('${rid}')">${rid}${ridDescription}</a>)`;  // Append the description
-                            return `
+        let dateDisplay = dateMatch
+            ? `${dateMatch[0].slice(0, 4)}-${dateMatch[0].slice(4, 6)}-${dateMatch[0].slice(6, 8)} ${dateMatch[0].slice(9, 11)}:${dateMatch[0].slice(11, 13)}:${dateMatch[0].slice(13, 15)} (TGID: <a href="javascript:void(0);" onclick="updateTGIDFilterAndRefresh('${t.id}')">${t.id}${idDescription}</a>, RID: <a href="javascript:void(0);" onclick="updateRIDFilterAndRefresh('${rid}')">${rid}${ridDescription}</a>)`  // Append the description
+            : `Unknown Date (TGID: <a href="javascript:void(0);" onclick="updateTGIDFilterAndRefresh('${t.id}')">${t.id}${idDescription}</a>, RID: <a href="javascript:void(0);" onclick="updateRIDFilterAndRefresh('${rid}')">${rid}${ridDescription}</a>)`;  // Append the description
+        return `
                                 <h3>${dateDisplay}</h3>
                                 <p>${t.transcription}</p>
                                 <div class="audio-player">
@@ -303,7 +343,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                                 </div>
                                 <div class="separator"></div>
                             `;
-                        }).join('')}
+    }).join('')}
                     </div>
                 </div>
             <!-- Javaskriptz -->
@@ -391,48 +431,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                         }
                     });
                 });
-                function updateTGIDFil
-                Run npm test
-                
-                > sdr-node-site@1.0.0 test
-                > mocha --exit
-                
-                Server is running on http://localhost:3000
-                
-                
-                  Server Tests
-                    1) "before all" hook for "should return 200 OK for the root path"
-                    2) "after all" hook for "should return 200 OK for the root path"
-                
-                
-                  0 passing (5ms)
-                  2 failing
-                
-                  1) Server Tests
-                       "before all" hook for "should return 200 OK for the root path":
-                     Uncaught Error: listen EADDRINUSE: address already in use :::3000
-                      at Server.setupListenHandle [as _listen2] (node:net:1817:16)
-                      at listenInCluster (node:net:1865:12)
-                      at Server.listen (node:net:1953:7)
-                      at Function.listen (node_modules/express/lib/application.js:635:24)
-                      at Context.<anonymous> (test/server.test.js:13:18)
-                      at process.processImmediate (node:internal/timers:476:21)
-                
-                  2) Server Tests
-                       "after all" hook for "should return 200 OK for the root path":
-                     Error [ERR_SERVER_NOT_RUNNING]: Server is not running.
-                      at new NodeError (node:internal/errors:405:5)
-                      at Server.close (node:net:2161:12)
-                      at Object.onceWrapper (node:events:631:28)
-                      at Server.emit (node:events:517:28)
-                      at emitCloseNT (node:net:2221:8)
-                      at processTicksAndRejections (node:internal/process/task_queues:81:21)
-                      at runNextTicks (node:internal/process/task_queues:64:3)
-                      at process.processImmediate (node:internal/timers:447:9)
-                
-                
-                
-                Error: Process completed with exit code 2.terAndRefresh(tgid) {
+                function updateTGIDFilterAndRefresh(tgid) {
                     let url = new URL(window.location.href);
                     let params = new URLSearchParams(url.search);
                     params.set('talkgroupIds', tgid);
@@ -452,14 +451,8 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
     `;
 }
 
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
 
-// app.listen(PORT, () => {
-//     console.log(`Server is running on http://localhost:${PORT}`);
-// });
-
-
-const server = app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
-  });
-  
-  module.exports = server;
+module.exports = server;

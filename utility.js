@@ -4,10 +4,10 @@ function isWithinDateRange(fileName, startDate, endDate) {
 
     let fileDateTimeStr = `${dateMatch[1].slice(0, 4)}-${dateMatch[1].slice(4, 6)}-${dateMatch[1].slice(6, 8)}T${dateMatch[2].slice(0, 2)}:${dateMatch[2].slice(2, 4)}:${dateMatch[2].slice(4, 6)}Z`;
     let fileDateTime = new Date(fileDateTimeStr);
-    
+
     if (startDate && fileDateTime < startDate) return false;
     if (endDate && fileDateTime > endDate) return false;
-    
+
     return true;
 }
 

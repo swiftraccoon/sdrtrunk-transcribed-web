@@ -1,17 +1,35 @@
 /* Global Styles */
 :root {
     --dark-bg: #080808;
-    --light-gray: #e1e1e1;
+    --light-gray: #b9b8b8;
     --medium-gray: #333;
     --dark-gray: #444;
-    --teal: #1abc9c;
-    --tealhover: #55f3d3;
+    --teal: #0e866e;
+    --tealhover: #41b69f;
     --blue: #3498db;
     --purple: #9b59b6;
     --orange: #e67e22;
     --red: #e74c3c;
     --green: #2ecc71;
 }
+
+/* Search Box */
+.search-box input[type="text"] {
+    background-color: var(--box-bg);
+    border: 1px solid var(--medium-gray);
+    border-radius: 12px; /* Rounded edges */
+    color: var(--light-gray); /* Text color */
+    padding: 10px;
+    width: 500px;
+    transition: all 0.3s ease;
+  }
+  
+  /* Glow when focused */
+  .search-box input[type="text"]:focus {
+    border-color: var(--medium-gray);
+    box-shadow: 0 0 10px var(--medium-gray);
+    outline: none;
+  }
 
 body {
     background-color: var(--dark-bg);
@@ -53,10 +71,14 @@ button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #r
     vertical-align: middle;
 }
 
+.button:hover {
+    box-shadow: 0 0 30px #474747;
+}
+
 /* Form Layout */
 form {
     align-items: center;
-    background-color: #1f1f1f;
+    background-color: #181818;
     border: 1px solid var(--dark-gray);
     border-radius: 8px;
     display: flex;
@@ -65,7 +87,7 @@ form {
 }
 
 form:hover {
-    background-color: #2a2a2a;
+    background-color: #181818;
 }
 
 form > label {
@@ -116,9 +138,13 @@ form > label {
     padding: 5px 10px;
 }
 
+.playPauseBtn:hover {
+    box-shadow: 0 0 30px #474747;
+}
+
 /* Text and Headers */
 h3, h4 {
-    color: #f1f1f1;
+    color: #a3a3a3;
     margin-top: 0;
 }
 
@@ -171,10 +197,14 @@ h3, h4 {
 
 .filterButton {
     background-color: var(--medium-gray);
-    border: none;
+    border: 2px;
     border-radius: 5px;
-    color: #fff;
+    color: #b1b1b1;
     cursor: pointer;
     padding: 6px 55px;
     transition: background-color 0.3s ease;
+}
+
+.filterButton:hover {
+    box-shadow: 0 0 20px #3d3d3d;
 }

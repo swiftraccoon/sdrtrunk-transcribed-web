@@ -6,6 +6,31 @@
     --border-gray: #212020;
 }
 
+/* Search Box */
+.search-box input[type="text"] {
+    background-color: var(--hover-gray);
+    border: 1px solid #003b46;
+    border-radius: 12px; /* Rounded edges */
+    color: #979797; /* Text color */
+    padding: 10px;
+    width: 500px;
+    transition: all 0.3s ease;
+  }
+  
+  /* Miscellaneous Styles */
+.separator, .filter_button_separator {
+    background: linear-gradient(to right, transparent, #4b4b4b, transparent);
+    height: 2px;
+    margin: 20px 0;
+}
+
+  /* Glow when focused */
+  .search-box input[type="text"]:focus {
+    border-color: #004d5a;
+    box-shadow: 0 0 10px var(--border-gray);
+    outline: none;
+  }
+
 /* Body and Text */
 body {
     background-color: var(--true-black);
@@ -86,7 +111,7 @@ a:hover {
 /* Form Elements */
 button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #refreshInterval, #specialTextToggle {
     background-color: var(--true-black);
-    border: 1px solid #4b4b4b;
+    border: 1px solid #303030;
     border-radius: 5px;
     color: var(--text-gray);
     cursor: pointer;
@@ -95,7 +120,7 @@ button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #r
 }
 
 button:hover, select:hover {
-    background-color: #2e2e2e;
+    background-color: #1a1a1a;
 }
 
 /* Collapsible Sections */
