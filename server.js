@@ -124,14 +124,14 @@ app.post('/subscribe', async (req, res) => {
         const ip = req.ip;
         const browser = req.headers['user-agent'];
         const confirmationId = generateConfirmationId();
-        
-        const dbResult = await db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`, 
+
+        const dbResult = await db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`,
             [regex, email, ip, browser, confirmationId]);
         console.log("DB Result:", dbResult);  // Debugging
-        
+
         const confirmationUrl = `http://yourdomain.com/verify/${confirmationId}`;
         await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\\n\\nClick this link to confirm: ${confirmationUrl}`);
-        
+
         res.status(200).json({ status: 'success' });  // Fixed response
     } catch (error) {
         console.error("Error in /subscribe: ", error);
@@ -151,17 +151,17 @@ app.post('/unsubscribe', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-  
+
 app.get('/verify/:id', (req, res) => {
     const confirmationId = req.params.id;
-    db.run(`UPDATE subscriptions SET verified = TRUE WHERE confirmationID = ?`, [confirmationId], function(err) {
-      if (err) {
-        return res.send('Error verifying email');
-      }
-      if (this.changes === 0) {
-        return res.send('Invalid confirmation ID');
-      }
-      res.send('Email verified');
+    db.run(`UPDATE subscriptions SET verified = TRUE WHERE confirmationID = ?`, [confirmationId], function (err) {
+        if (err) {
+            return res.send('Error verifying email');
+        }
+        if (this.changes === 0) {
+            return res.send('Invalid confirmation ID');
+        }
+        res.send('Email verified');
     });
 });
 
@@ -230,39 +230,48 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
         <body>
         <!-- Title header -->
         <center><h3><a href="https://www.broadcastify.com/calls/node/2577">Node 2577: North Carolina VIPER</a><br /></h3>
-        <!-- Search Box -->
-        <div class="search-box">
-        <form action="/search" method="get">
-            <input type="text" name="q" placeholder="Search transcriptions...">
-            <button type="submit">Search</button>
-        </form>
-        </div><br />
-        <div class="search-box">
-        <input type="text" id="regex" placeholder="Enter regex">
-        <input type="text" id="email" placeholder="Enter email">
-        <button onclick="subscribe()">Subscribe</button>
-        <button onclick="unsubscribe()">Unsubscribe</button>
-        </div><br />
-               <form action="/" method="get">
-                    <!-- Theme selector -->
-                    <div style="display: inline-block; vertical-align: top; border-right: 2px solid #444; padding-right: 10px; margin-right: 10px;">
-                        <label for="themeSelector">Theme:</label>
-                        <select name="theme">
-                            <option value="gray" ${theme === 'gray' ? 'selected' : ''}>Gray</option>
-                            <option value="darkGray" ${theme === 'darkGray' ? 'selected' : ''}>Dark Gray</option>
-                            <option value="ultraDark" ${theme === 'ultraDark' ? 'selected' : ''}>Ultra Dark</option>
-                        </select>
-                    </div>
-                    <!-- Special text -->
-                    <div style="display: inline-block; vertical-align: top; border-right: 2px solid #444; padding-right: 10px; margin-right: 10px;">
-                        <input type="checkbox" id="specialTextToggle">
-                    </div>
-                    <!-- Auto-refresh -->
-                    <div style="display: inline-block; vertical-align: top; ">
-                        <input type="checkbox" id="autoRefreshCheckbox" name="autoRefresh" value="true">
-                        <input type="number" id="refreshInterval" name="refreshRate" min="1" max="60" value="5" style="width: 15px;"> minutes
-                    </div>
-                    <button type="submit">Apply</button>
+        <div class="transcription">
+            <button type="button" class="collapsible">Search, Subscription, and Theme</button>
+            <div class="collapsed">
+                <!-- Search Box -->
+                <div class="search-box">
+                <form action="/search" method="get">
+                    <input type="text" name="q" placeholder="Search transcriptions...">
+                    <button type="submit">Search</button>
+                </form>
+                </div><br />
+                <form action="/subscribe" method="post" class="subscription-form">
+                <div class="subscription-box">
+                    <input type="text" id="regex" name="regex" placeholder="Enter regex">
+                    <input type="text" id="email" name="email" placeholder="Enter email">
+                    <button type="submit">Subscribe</button>
+                    <span style="display:inline-block; width:10px;"></span>
+                    <button type="submit" formaction="/unsubscribe">Unsubscribe</button>
+                </div>
+                </form><br />
+                <form action="/" method="get">
+                <!-- Theme selector -->
+                <div style="display: inline-block; vertical-align: top; border-right: 2px solid #444; padding-right: 10px; margin-right: 10px;">
+                    <label for="themeSelector">Theme:</label>
+                    <select name="theme">
+                    <option value="gray" ${theme === 'gray' ? 'selected' : ''}>Gray</option>
+                    <option value="darkGray" ${theme === 'darkGray' ? 'selected' : ''}>Dark Gray</option>
+                    <option value="ultraDark" ${theme === 'ultraDark' ? 'selected' : ''}>Ultra Dark</option>
+                    </select>
+                </div>
+                <!-- Special text -->
+                <div style="display: inline-block; vertical-align: top; border-right: 2px solid #444; padding-right: 10px; margin-right: 10px;">
+                    <input type="checkbox" id="specialTextToggle">
+                </div>
+                <!-- Auto-refresh -->
+                                <div style="display: inline-block; vertical-align: top; ">
+                                    <input type="checkbox" id="autoRefreshCheckbox" name="autoRefresh" value="true">
+                                    <input type="number" id="refreshInterval" name="refreshRate" min="1" max="60" value="5" style="width: 15px;"> minutes
+                                </div>
+                                <button type="submit">Apply</button>
+                </form>
+            </div>
+            </div>
                 </form>
                 </center>
             <!-- Broadcastify Links -->

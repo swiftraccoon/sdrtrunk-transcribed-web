@@ -118,7 +118,7 @@ button:hover, input[type="date"]:focus, input[type="time"]:focus {
 }
 
 /* Collapsible Sections */
-.collapsible {
+/* .collapsible {
     background-color: var(--link-color);
     border: none;
     border-radius: 5px;
@@ -132,7 +132,29 @@ button:hover, input[type="date"]:focus, input[type="time"]:focus {
 
 .collapsible:hover {
     background-color: var(--hover-color);
-}
+} */
+
+.collapsible {
+    margin-bottom: 10px;
+  }
+  
+  .collapsible-button {
+    background-color: #444;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .collapsible-content {
+    display: none;
+    padding: 10px;
+    border: 2px solid #444;
+  }
+  
+  .collapsible.active .collapsible-content {
+    display: block;
+  }
 
 .collapsed {
     max-height: 0;
@@ -200,6 +222,15 @@ form > label {
     font-weight: bold;
     margin-right: 5px;
 }
+
+.subscription-form {
+    align-items: center;
+    background-color: var(--box-bg);
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+  }
 
 select {
     background-color: var(--box-bg);
