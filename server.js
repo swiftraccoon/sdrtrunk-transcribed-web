@@ -8,6 +8,7 @@ const basicAuth = require('express-basic-auth');
 const cookieParser = require('cookie-parser');
 const { isWithinDateRange, extractDateFromFilename } = require('./utility');
 const searchTranscriptions = require('./search');
+const sendEmail = require('./email');
 
 
 // Constants
@@ -115,7 +116,8 @@ app.post('/subscribe', (req, res) => {
     // TODO: Validate regex and email
     const { regex, email, ip, browser } = req.body;
     db.run(`INSERT INTO subscriptions (regex, email, ip, browser) VALUES (?, ?, ?, ?)`, [regex, email, ip, browser]);
-    // TODO: Send confirmation email
+    const confirmationId = generateConfirmationId(); // Implement this function to generate a unique ID
+    sendEmail(email, 'Confirm Subscription', `Click this link to confirm: http://yourdomain.com/verify/${confirmationId}`);
     res.send('Subscription added');
 });
   
@@ -128,6 +130,7 @@ app.post('/unsubscribe', (req, res) => {
 app.get('/verify/:id', (req, res) => {
     const id = req.params.id;
     db.run(`UPDATE subscriptions SET verified = TRUE WHERE id = ?`, [id]);
+    sendEmail(email, 'Subscription Verified', 'Your subscription has been verified.');
     res.send('Email verified');
 });
 

@@ -9,8 +9,9 @@ const checkTranscriptions = async () => {
       throw err;
     }
     rows.forEach((row) => {
-      // TODO: Check each transcription against row.regex
-      // TODO: If match found, send email
+      if (matchFound) {
+        sendEmail(row.email, 'New Transcription Match', `New transcription: ${filename}`);
+      }
     });
   });
 };
