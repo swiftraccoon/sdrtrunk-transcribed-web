@@ -1,8 +1,15 @@
 const searchTranscriptions = require('./search');
 const sendEmail = require('./email');
+const express = require('express');
+const router = express.Router();
+const searchTranscriptions = require('./search');
+const sendEmail = require('./email');
+const db = require('./database');
+const { generateConfirmationId, getQueryParams, getDefaultDateTime } = require('./utility');
+
 
 // Subscribe
-app.post('/subscribe', async (req, res) => {
+router.post('/subscribe', async (req, res) => {
     try {
         const { regex, email } = req.body;
         const ip = req.ip;
@@ -24,7 +31,7 @@ app.post('/subscribe', async (req, res) => {
 });
 
 // Unsubscribe
-app.post('/unsubscribe', async (req, res) => {
+router.post('/unsubscribe', async (req, res) => {
     try {
         const { email } = req.body;
         const dbResult = await db.run(`UPDATE subscriptions SET enabled = FALSE WHERE email = ?`, [email]);
@@ -36,7 +43,7 @@ app.post('/unsubscribe', async (req, res) => {
     }
 });
 
-app.get('/verify/:id', (req, res) => {
+router.get('/verify/:id', (req, res) => {
     const confirmationId = req.params.id;
     db.run(`UPDATE subscriptions SET verified = TRUE WHERE confirmationID = ?`, [confirmationId], function (err) {
         if (err) {
@@ -49,12 +56,12 @@ app.get('/verify/:id', (req, res) => {
     });
 });
 
-app.get('/robots.txt', (res) => {
+router.get('/robots.txt', (res) => {
     res.type('text/plain');
     res.send("User-agent: *\nDisallow: /");
 });
 
-app.get('/', async (req, res) => {
+router.get('/', async (req, res) => {
     const { selectedRadioIds, selectedTalkgroupIds, userSelectedTheme, autoRefreshEnabled, refreshRate } = getQueryParams(req);
 
     if (req.query.theme) {
@@ -83,7 +90,7 @@ app.get('/', async (req, res) => {
 
 
 
-app.get('/search', async (req, res) => {
+router.get('/search', async (req, res) => {
     const query = req.query.q;
     if (!query) {
         return res.send('No query provided');

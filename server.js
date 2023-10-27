@@ -1,17 +1,9 @@
 // Import modules
 const express = require('express');
-const db = require('./database');
-const fs = require('fs');
 const path = require('path');
 const basicAuth = require('express-basic-auth');
 const cookieParser = require('cookie-parser');
-const { getQueryParams,
-    getDefaultDateTime,
-    processDirectory,
-    generateConfirmationId } = require('./utility');
-const searchTranscriptions = require('./search');
-const sendEmail = require('./email');
-const renderHTML = require('./renderHTML');
+const routes = require('./routes');  // Import routes
 
 // Constants
 const PORT = 3000;
@@ -22,113 +14,16 @@ const users = { 'user': 'pass' };
 const app = express();
 app.use(cookieParser());
 
-
 // Middleware
-// TODO: Implement a more secure authentication method
-//       preferably a login page than prompt
 app.use(basicAuth({
     users: users,
-    challenge: true,  // Will display a pop-up asking for username/password
+    challenge: true,
     realm: 'hi',
     unauthorizedResponse: 'hihi'
 }));
 app.use('/public', express.static(PUBLIC_DIR));
 
-
-// Route handlers
-// Subscribe
-app.post('/subscribe', async (req, res) => {
-    try {
-        const { regex, email } = req.body;
-        const ip = req.ip;
-        const browser = req.headers['user-agent'];
-        const confirmationId = generateConfirmationId();
-
-        const dbResult = await db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`,
-            [regex, email, ip, browser, confirmationId]);
-        console.log("DB Result:", dbResult);  // Debugging
-
-        const confirmationUrl = `http://yourdomain.com/verify/${confirmationId}`;
-        await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\\n\\nClick this link to confirm: ${confirmationUrl}`);
-
-        res.status(200).json({ status: 'success' });  // Fixed response
-    } catch (error) {
-        console.error("Error in /subscribe: ", error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-// Unsubscribe
-app.post('/unsubscribe', async (req, res) => {
-    try {
-        const { email } = req.body;
-        const dbResult = await db.run(`UPDATE subscriptions SET enabled = FALSE WHERE email = ?`, [email]);
-        console.log("DB Result:", dbResult);  // Debugging
-        res.status(200).json({ status: 'success' });  // Fixed response
-    } catch (error) {
-        console.error("Error in /unsubscribe: ", error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.get('/verify/:id', (req, res) => {
-    const confirmationId = req.params.id;
-    db.run(`UPDATE subscriptions SET verified = TRUE WHERE confirmationID = ?`, [confirmationId], function (err) {
-        if (err) {
-            return res.send('Error verifying email');
-        }
-        if (this.changes === 0) {
-            return res.send('Invalid confirmation ID');
-        }
-        res.send('Email verified');
-    });
-});
-
-app.get('/robots.txt', (req, res) => {
-    res.type('text/plain');
-    res.send("User-agent: *\nDisallow: /");
-});
-
-app.get('/', async (req, res) => {
-    const { selectedRadioIds, selectedTalkgroupIds, userSelectedTheme, autoRefreshEnabled, refreshRate } = getQueryParams(req);
-
-    if (req.query.theme) {
-        res.cookie('theme', req.query.theme);
-    }
-
-    const { defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime } = getDefaultDateTime();
-
-    const startDate = req.query.startDate_date && req.query.startDate_time
-        ? new Date(`${req.query.startDate_date}T${req.query.startDate_time}Z`)
-        : new Date(`${defaultStartDate}T${defaultStartTime}Z`);
-
-    const endDate = req.query.endDate_date && req.query.endDate_time
-        ? new Date(`${req.query.endDate_date}T${req.query.endDate_time}Z`)
-        : new Date(`${defaultEndDate}T${defaultEndTime}Z`);
-
-    const dirs = await fs.promises.readdir(path.join(PUBLIC_DIR, 'audio'));
-    const transcriptionsList = await Promise.all(dirs.map(dir => processDirectory(dir, selectedRadioIds, selectedTalkgroupIds, startDate, endDate)));
-    const flattenedTranscriptions = transcriptionsList.flat();
-
-    flattenedTranscriptions.sort((a, b) => b.timestamp - a.timestamp);
-
-    res.set('Cache-Control', 'no-store');
-    res.send(renderHTML(flattenedTranscriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, userSelectedTheme));
-});
-
-
-
-app.get('/search', async (req, res) => {
-    const query = req.query.q;
-    if (!query) {
-        return res.send('No query provided');
-    }
-
-    const results = await searchTranscriptions(query);
-    res.send(results);
-});
-
-
+app.use('/', routes);  // Use the imported routes
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
