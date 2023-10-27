@@ -1,41 +1,6 @@
-// Import modules
-const express = require('express');
-const db = require('./database');
-const fs = require('fs');
-const path = require('path');
-const basicAuth = require('express-basic-auth');
-const cookieParser = require('cookie-parser');
-const { getQueryParams,
-    getDefaultDateTime,
-    processDirectory,
-    generateConfirmationId } = require('./utility');
 const searchTranscriptions = require('./search');
 const sendEmail = require('./email');
-const renderHTML = require('./renderHTML');
 
-// Constants
-const PORT = 3000;
-const PUBLIC_DIR = path.join(__dirname, 'public');
-const users = { 'user': 'pass' };
-
-// Initialize app
-const app = express();
-app.use(cookieParser());
-
-
-// Middleware
-// TODO: Implement a more secure authentication method
-//       preferably a login page than prompt
-app.use(basicAuth({
-    users: users,
-    challenge: true,  // Will display a pop-up asking for username/password
-    realm: 'hi',
-    unauthorizedResponse: 'hihi'
-}));
-app.use('/public', express.static(PUBLIC_DIR));
-
-
-// Route handlers
 // Subscribe
 app.post('/subscribe', async (req, res) => {
     try {
@@ -84,7 +49,7 @@ app.get('/verify/:id', (req, res) => {
     });
 });
 
-app.get('/robots.txt', (req, res) => {
+app.get('/robots.txt', (res) => {
     res.type('text/plain');
     res.send("User-agent: *\nDisallow: /");
 });
@@ -126,10 +91,4 @@ app.get('/search', async (req, res) => {
 
     const results = await searchTranscriptions(query);
     res.send(results);
-});
-
-
-
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
 });
