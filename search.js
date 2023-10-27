@@ -1,21 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const PUBLIC_DIR = path.join(__dirname, 'public');
-const db = require('./database');
-const sendEmail = require('./email');
-
-const checkTranscriptions = async () => {
-  db.all(`SELECT * FROM subscriptions WHERE enabled = TRUE AND verified = TRUE`, [], (err, rows) => {
-    if (err) {
-      throw err;
-    }
-    rows.forEach((row) => {
-      if (matchFound) {
-        sendEmail(row.email, 'New Transcription Match', `Transcription: ${filename}`);
-      }
-    });
-  });
-};
 
 let cache = {};
 
@@ -44,7 +29,6 @@ const loadCache = async () => {
   }
 };
 
-
 const searchTranscriptions = async (query) => {
   if (!cache) {
     console.error("Cache is not initialized");
@@ -66,8 +50,8 @@ const searchTranscriptions = async (query) => {
 
   // Sort results by filename in descending order
   results.sort((a, b) => b.file.localeCompare(a.file));
-  console.log("Cache:", cache);
-  console.log("Results:", results);
+  // console.log("Cache:", cache);
+  // console.log("Results:", results);
   return results;
 };
 
