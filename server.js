@@ -1,5 +1,6 @@
 // Import modules
 const express = require('express');
+const db = require('./database');
 const fs = require('fs');
 const moment = require('moment-timezone');
 const path = require('path');
@@ -110,6 +111,26 @@ app.use('/public', express.static(PUBLIC_DIR));
 
 
 // Route handlers
+app.post('/subscribe', (req, res) => {
+    // TODO: Validate regex and email
+    const { regex, email, ip, browser } = req.body;
+    db.run(`INSERT INTO subscriptions (regex, email, ip, browser) VALUES (?, ?, ?, ?)`, [regex, email, ip, browser]);
+    // TODO: Send confirmation email
+    res.send('Subscription added');
+});
+  
+app.post('/unsubscribe', (req, res) => {
+    const { email } = req.body;
+    db.run(`UPDATE subscriptions SET enabled = FALSE WHERE email = ?`, [email]);
+    res.send('Subscription removed');
+});
+  
+app.get('/verify/:id', (req, res) => {
+    const id = req.params.id;
+    db.run(`UPDATE subscriptions SET verified = TRUE WHERE id = ?`, [id]);
+    res.send('Email verified');
+});
+
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.send("User-agent: *\nDisallow: /");
@@ -159,10 +180,10 @@ app.get('/search', async (req, res) => {
 // HTML rendering function
 function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, theme) {
     const themeCSSLink = {
-        gray: "http://sdr.spindale.host:3000/public/gray.css",
-        darkGray: "http://sdr.spindale.host:3000/public/darkGray.css",
-        ultraDark: "http://sdr.spindale.host:3000/public/ultraDark.css"
-    }[theme] || "http://sdr.spindale.host:3000/public/gray.css"; // Use gray theme as default if theme is undefined or not matching.    
+        gray: "public/gray.css",
+        darkGray: "public/darkGray.css",
+        ultraDark: "public/ultraDark.css"
+    }[theme] || "public/gray.css"; // Use gray theme as default if theme is undefined or not matching.    
     return `
         <!DOCTYPE html>
         <html lang="en">
@@ -181,6 +202,12 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
             <input type="text" name="q" placeholder="Search transcriptions...">
             <button type="submit">Search</button>
         </form>
+        </div><br />
+        <div class="search-box">
+        <input type="text" id="regex" placeholder="Enter regex">
+        <input type="text" id="email" placeholder="Enter email">
+        <button onclick="subscribe()">Subscribe</button>
+        <button onclick="unsubscribe()">Unsubscribe</button>
         </div><br />
                <form action="/" method="get">
                     <!-- Theme selector -->
@@ -210,14 +237,6 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                     <div class="collapsed">
                         <a href="https://www.broadcastify.com/calls/tg/7118/41001">41001:RuCoEMS</a> <br />
                         <a href="https://www.broadcastify.com/calls/tg/7118/41002">41002:RuCoFD</a> <br />
-                        <a href="https://www.broadcastify.com/calls/tg/7118/41003">41003:RuCoSD</a> <br />
-                        <a href="https://www.broadcastify.com/calls/tg/7118/41013">41013:RPD</a> <br />
-                        <a href="https://www.broadcastify.com/calls/tg/7118/41020">41020:FCPD</a> <br />
-                        <a href="https://www.broadcastify.com/calls/tg/7118/51583">51583:MRTS/Statewide</a> <br />
-                        <a href="https://www.broadcastify.com/calls/tg/7118/52198">52198:NCSHP/TroopG/Dist2</a> <br />
-                        <a href="https://www.broadcastify.com/calls/tg/7118/52201">52201:NCSHP/TroopG/Dist5</a> <br />
-                        <a href="https://www.broadcastify.com/calls/tg/7118/52540">52540:RthfdHosVMF5/VMN</a> <br />
-                        Transcriptions that fall under group P are due to multiple talkgroups (almost always NCSHP)
             </div>
                 <div class="transcription">
                     <div class="content">
@@ -407,6 +426,17 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                     url.search = params.toString();
                     window.location.href = url.toString();
                 }
+                function subscribe() {
+                    const regex = document.getElementById('regex').value;
+                    const email = document.getElementById('email').value;
+                    // TODO: Validate regex and email
+                    // TODO: Make API call to /subscribe
+                  }
+                  
+                  function unsubscribe() {
+                    const email = document.getElementById('email').value;
+                    // TODO: Make API call to /unsubscribe
+                  }                  
             </script>
         </body>
         </html>

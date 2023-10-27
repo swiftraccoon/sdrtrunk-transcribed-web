@@ -1,6 +1,19 @@
 const fs = require('fs');
 const path = require('path');
 const PUBLIC_DIR = path.join(__dirname, 'public');
+const db = require('./database');
+
+const checkTranscriptions = async () => {
+  db.all(`SELECT * FROM subscriptions WHERE enabled = TRUE AND verified = TRUE`, [], (err, rows) => {
+    if (err) {
+      throw err;
+    }
+    rows.forEach((row) => {
+      // TODO: Check each transcription against row.regex
+      // TODO: If match found, send email
+    });
+  });
+};
 
 let cache = {};
 
