@@ -46,6 +46,11 @@ const loadCache = async () => {
 
 
 const searchTranscriptions = async (query) => {
+  if (!cache) {
+    console.error("Cache is not initialized");
+    return [];
+  }
+
   const results = [];
   const lowerQuery = query.toLowerCase();
 
@@ -61,7 +66,8 @@ const searchTranscriptions = async (query) => {
 
   // Sort results by filename in descending order
   results.sort((a, b) => b.file.localeCompare(a.file));
-
+  console.log("Cache:", cache);
+  console.log("Results:", results);
   return results;
 };
 

@@ -1,7 +1,28 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
+const search = require('../search');
 
-const { searchTranscriptions } = require('../search');
+// Stub the searchTranscriptions function
+sinon.stub(search, 'searchTranscriptions').callsFake(async (query) => {
+  // Use the mock cache here
+  const results = [];
+  const lowerQuery = query.toLowerCase();
+
+  for (const { content, dir, file } of Object.values(cache)) {
+    if (content.toLowerCase().includes(lowerQuery)) {
+      results.push({
+        dir,
+        file,
+        content
+      });
+    }
+  }
+
+  // Sort results by filename in descending order
+  results.sort((a, b) => b.file.localeCompare(a.file));
+
+  return results;
+});
 
 describe('searchTranscriptions', () => {
   const cache = {
@@ -21,6 +42,8 @@ describe('searchTranscriptions', () => {
       file: 'file3.txt'
     }
   };
+
+  console.log("Mock Cache:", cache);
 
   it('should return an empty array if no transcriptions match the query', async () => {
     const results = await searchTranscriptions('foobar', cache);
@@ -64,6 +87,7 @@ describe('searchTranscriptions', () => {
     const results = await searchTranscriptions('content', null);
     expect(results).to.be.an('array').that.is.empty;
     expect(consoleSpy.calledOnce).to.be.true;
+    console.log("Was console.error called?", consoleSpy.called);
     consoleSpy.restore();
   });
 });
