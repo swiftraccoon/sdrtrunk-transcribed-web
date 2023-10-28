@@ -30,8 +30,8 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
         <!-- Title header -->
         <center><h3><a href="https://www.broadcastify.com/calls/node/2577">Node 2577: North Carolina VIPER</a><br /></h3>
         <div class="transcription">
-            <button type="button" class="collapsible">Search, Subscription, and Theme</button>
-            <div class="collapsed">
+            <button type="button" class="collapsible">Search, Subscription, and Themes</button>
+            <div class="collapsed"><br />
                 <!-- Search Box -->
                 <div class="search-box">
                 <form action="/search" method="get">
@@ -51,7 +51,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                 <form action="/" method="get">
                 <!-- Theme selector -->
                 <div style="display: inline-block; vertical-align: top; border-right: 2px solid #444; padding-right: 10px; margin-right: 10px;">
-                    <label for="themeSelector">Theme:</label>
+                    <label for="themeSelector"></label>
                     <select name="theme">
                     <option value="gray" ${theme === 'gray' ? 'selected' : ''}>Gray</option>
                     <option value="darkGray" ${theme === 'darkGray' ? 'selected' : ''}>Dark Gray</option>
@@ -65,7 +65,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                 <!-- Auto-refresh -->
                                 <div style="display: inline-block; vertical-align: top; ">
                                     <input type="checkbox" id="autoRefreshCheckbox" name="autoRefresh" value="true">
-                                    <input type="number" id="refreshInterval" name="refreshRate" min="1" max="60" value="5" style="width: 15px;"> minutes
+                                    <input type="number" id="refreshInterval" name="refreshRate" min="1" max="60" value="5" style="width: 15px;"> min
                                 </div>
                                 <button type="submit">Apply</button>
                 </form>
@@ -317,6 +317,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                         alert('An error occurred. Please try again.');
                     });
                 }
+            </script>
         </body>
         </html>
     `;

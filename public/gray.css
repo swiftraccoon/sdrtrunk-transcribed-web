@@ -134,28 +134,6 @@ button:hover, input[type="date"]:focus, input[type="time"]:focus {
     background-color: var(--hover-color);
 }
 
-/* .collapsible {
-    margin-bottom: 10px;
-  }
-  
-  .collapsible-button {
-    background-color: #444;
-    color: #fff;
-    padding: 10px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .collapsible-content {
-    display: none;
-    padding: 10px;
-    border: 2px solid #444;
-  }
-  
-  .collapsible.active .collapsible-content {
-    display: block;
-  } */
-
 .collapsed {
     display: none;
     max-height: 0;
@@ -231,7 +209,25 @@ form > label {
     gap: 10px;
     padding: 10px;
     transition: background-color 0.3s ease;
-  }
+}
+
+/* Search Box */
+.subscription-box input[type="text"] {
+    background-color: var(--box-bg);
+    border: 1px solid var(--link-color);
+    border-radius: 12px; /* Rounded edges */
+    color: var(--light-gray); /* Text color */
+    padding: 10px;
+    width: 185px;
+    transition: all 0.3s ease;
+}
+
+  /* Glow when focused */
+  .subscription-box input[type="text"]:focus {
+    border-color: var(--link-color);
+    box-shadow: 0 0 10px var(--link-color);
+    outline: none;
+}
 
 select {
     background-color: var(--box-bg);
