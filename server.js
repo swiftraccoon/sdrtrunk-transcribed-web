@@ -6,12 +6,15 @@ const cookieParser = require('cookie-parser');
 const routes = require('./routes'); 
 const bodyParser = require('body-parser');
 const { loadCache } = require('./search');
+const config = require('./config');
+const PORT = config.PORT;
+const WEB_user0 = config.WEB_user0;
+const WEB_pass0 = config.WEB_pass0;
 
 
 // Constants
-const PORT = 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
-const users = { 'user': 'pass' };
+const users = { [WEB_user0]: WEB_pass0 };
 
 // Initialize app
 const app = express();

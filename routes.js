@@ -9,6 +9,8 @@ const router = express.Router();
 const db = require('./database');
 const { generateConfirmationId, getQueryParams, getDefaultDateTime, processDirectory } = require('./utility');
 const myEmitter = require('./events');
+const config = require('./config');
+const WEB_URL = config.WEB_URL;
 
 
 // Subscribe
@@ -23,7 +25,7 @@ router.post('/subscribe', async (req, res) => {
             [regex, email, ip, browser, confirmationId]);
         console.log("DB Result:", dbResult);
 
-        const confirmationUrl = `http://yourdomain.com/verify/${confirmationId}`;
+        const confirmationUrl = `${WEB_URL}/verify/${confirmationId}`;
         await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\n\nClick this link to confirm: ${confirmationUrl}`);
 
         // res.status(200).json({ status: 'success' });  // Fixed response

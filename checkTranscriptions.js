@@ -3,6 +3,8 @@ const path = require('path');
 const sendEmail = require('./email');
 const db = require('./database');
 const myEmitter = require('./events');
+const config = require('./config');
+const WEB_URL = config.WEB_URL;
 
 let lastProcessedFile = null;
 let subscriptions = [];
@@ -113,7 +115,7 @@ const checkTranscriptions = async () => {
                 console.log(`Testing regex: ${sub.regex}`);
                 if (regex.test(transcription.text)) {
                     console.log(`Match found for regex ${sub.regex} in file ${fileName}`);
-                    await sendEmail(sub.email, `${regex}`, `${fileName} \n ${transcription.text} \n http://your.host:3000/search?q=${regex}`);
+                    await sendEmail(sub.email, `${regex}`, `${fileName} \n ${transcription.text} \n ${WEB_URL}/search?q=${regex}`);
                 }
             }
             lastProcessedFile = filePath;

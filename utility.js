@@ -2,6 +2,10 @@ const moment = require('moment-timezone');
 const path = require('path');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const fs = require('fs');
+const config = require('./config');
+const confirmIDSTRLength = config.confirmIDSTRLength;
+const confirmIDSubSTRBegin = config.confirmIDSubSTRBegin;
+const confirmIDSubSTREnd = config.confirmIDSubSTREnd;
 
 
 function isWithinDateRange(fileName, startDate, endDate) {
@@ -93,7 +97,7 @@ const processDirectory = async (dir, selectedRadioIds, selectedTalkgroupIds, sta
 
 // Generate a unique confirmation ID (implement this function)
 const generateConfirmationId = () => {
-    return Math.random().toString(36).substring(2, 25);
+    return Math.random().toString(confirmIDSTRLength).substring(confirmIDSubSTRBegin, confirmIDSubSTREnd);
 };
 
 module.exports = {

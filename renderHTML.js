@@ -1,15 +1,10 @@
 const path = require('path');
-
-const idDescriptionMap = {
-    '41001': 'EMS',
-    '41002': 'Fire Dept',
-    '': 'No Filter',
-};
-const radio_id_names = {
-    "1610018": "EMS CAD",
-    "1610019": "FD CAD",
-    "": "No Filter",
-};
+const config = require('./config');
+const WEB_nodeID = config.WEB_nodeID;
+const WEB_nodeName = config.WEB_nodeName;
+const idDescriptionMap = config.idDescriptionMap;
+const radio_id_names = config.radio_id_names;
+const broadcastifyLinks = config.broadcastifyLinks;
 
 function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, theme) {
     const themeCSSLink = {
@@ -28,7 +23,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
         </head>
         <body>
         <!-- Title header -->
-        <center><h3><a href="https://www.broadcastify.com/calls/node/2577">Node 2577: North Carolina VIPER</a><br /></h3>
+        <center><h3><a href="https://www.broadcastify.com/calls/node/${WEB_nodeID}">Node ${WEB_nodeID}: ${WEB_nodeName}</a><br /></h3>
         <div class="transcription">
             <button type="button" class="collapsible">Search | Subscription | Themes</button>
             <div class="collapsed"><br />
@@ -77,8 +72,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
             <div class="transcription">
                 <button class="collapsible">Broadcastify Links</button>
                     <div class="collapsed">
-                        <a href="https://www.broadcastify.com/calls/tg/7118/41001">41001:RuCoEMS</a> <br />
-                        <a href="https://www.broadcastify.com/calls/tg/7118/41002">41002:RuCoFD</a> <br />
+                        ${broadcastifyLinks}
             </div>
                 <div class="transcription">
                     <div class="content">

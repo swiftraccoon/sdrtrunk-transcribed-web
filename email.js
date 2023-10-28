@@ -1,18 +1,23 @@
 const nodemailer = require('nodemailer');
+const config = require('./config');
+const EMAIL_HOST = config.EMAIL_HOST;
+const EMAIL_PORT = config.EMAIL_PORT;
+const EMAIL_USER = config.EMAIL_USER;
+const EMAIL_PASS = config.EMAIL_PASS;
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.email.gov',
-  port: 587,
+  host: EMAIL_HOST,
+  port: EMAIL_PORT,
   secure: false,
   auth: {
-    user: 'user', // replace with your ProtonMail username
-    pass: 'pass'  // replace with your ProtonMail password
+    user: EMAIL_USER,
+    pass: EMAIL_PASS
   }
 });
 
 const sendEmail = async (to, subject, text) => {
   const mailOptions = {
-    from: 'user', // sender address
+    from: EMAIL_USER, // sender address
     to: to,          // list of receivers
     subject: subject,// subject line
     text: text       // plain text body
