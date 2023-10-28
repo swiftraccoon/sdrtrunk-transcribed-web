@@ -117,6 +117,18 @@ button:hover, input[type="date"]:focus, input[type="time"]:focus {
     box-shadow: 0 0 5px #007BFF;
 }
 
+.subscription_button {
+    background-color: var(--link-color);
+    border: none;
+    border-radius: 5px;
+    position: relative;
+    color: #fff;
+    cursor: pointer;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+    text-align: left;
+}
+
 /* Collapsible Sections */
 .collapsible {
     background-color: var(--link-color);
@@ -160,6 +172,12 @@ h3 {
     background: linear-gradient(to right, transparent, #444, transparent);
     height: 2px;
     margin: 20px 0;
+}
+
+.subscription_button_separator {
+    background: linear-gradient(to right, transparent, #444, transparent);
+    height: 1px;
+    margin: 5px 0;
 }
 
 .transcription, .eventbox {

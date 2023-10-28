@@ -27,7 +27,7 @@ app.use(basicAuth({
 }));
 app.use('/public', express.static(PUBLIC_DIR));
 app.use('/', routes);  // Use the imported routes
-app.use((req, res, next) => {
+app.use((req, next) => {
     console.log('req.body:', req.body);
     next();
 });

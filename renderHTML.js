@@ -42,10 +42,10 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                 <form action="/subscribe" method="post" class="subscription-form">
                 <div class="subscription-box">
                     <input type="text" id="regex" name="regex" placeholder="Enter regex">
-                    <input type="text" id="email" name="email" placeholder="Enter email">
-                    <button type="submit">Subscribe</button>
-                    <span style="display:inline-block; width:10px;"></span>
-                    <button type="submit" formaction="/unsubscribe">Unsubscribe</button>
+                    <input type="text" id="email" name="email" placeholder="Enter email"><br />
+                    <div class="subscription_button_separator"></div>
+                    <button type="submit" class="subscription_button">Subscribe</button>
+                    <button type="submit" formaction="/unsubscribe" class="subscription_button">Unsubscribe</button>
                 </div>
                 </form><br />
                 <form action="/" method="get">
