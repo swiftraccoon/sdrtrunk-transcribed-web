@@ -41,10 +41,10 @@ router.post('/unsubscribe', async (req, res) => {
         const ip = req.ip;
         const browser = req.headers['user-agent'];
         const confirmationId = generateConfirmationId();
-    
+
         const dbResult = await new Promise((resolve, reject) => {
             db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`,
-                [regex, email, ip, browser, confirmationId], function(err) {
+                [regex, email, ip, browser, confirmationId], function (err) {
                     if (err) return reject(err);
                     resolve(this);
                 });

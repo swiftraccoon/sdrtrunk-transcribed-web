@@ -27,7 +27,7 @@ const shouldProcessFile = (fileName) => {
 
     // Assuming serverBootTime is a Date object
     if (fileDate <= serverBootTime) {
-        console.log(`Skipping file ${fileName} as it is older ${fileDate} than server boot time ${serverBootTime}.`);
+        console.log(`Skipping file ${fileName}\nfileDate: ${fileDate} serverBootTime: ${serverBootTime}.`);
         return false;
     }
 
@@ -67,31 +67,31 @@ const checkTranscriptions = async () => {
     console.log("Entered checkTranscriptions function");
     try {
         const files = await readDirRecursive('./public/transcriptions');
-        
+
         // Sort files by their extracted timestamps in descending order
         files.sort((a, b) => {
             const timestampA = path.basename(a).match(/^(\d{8}_\d{6})/);
             const timestampB = path.basename(b).match(/^(\d{8}_\d{6})/);
-            
+
             if (timestampA && timestampB) {
                 return timestampB[1].localeCompare(timestampA[1]);
             }
-            
+
             return 0;
         });
-        
+
         const subscriptions = await fetchActiveSubscriptions();
-        
+
         for (let i = 0; i < files.length; i++) {
             const filePath = files[i];
             const fileName = path.basename(filePath);
-            
+
             // If the file should not be processed, break out of the loop
             if (!shouldProcessFile(fileName)) {
                 console.log(`Stopping at file ${fileName} as it is older than server boot time.`);
                 break;
             }
-            
+
             const content = await fs.readFile(filePath, 'utf-8');
             let transcription;
             try {
@@ -100,7 +100,7 @@ const checkTranscriptions = async () => {
                 console.error(`Invalid JSON in file ${fileName}`);
                 continue;
             }
-            
+
             for (const sub of subscriptions) {
                 const regex = new RegExp(sub.regex, 'i');
                 // Debugging Step 2: Log the regex being tested
