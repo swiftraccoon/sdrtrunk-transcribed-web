@@ -17,9 +17,18 @@ const fetchActiveSubscriptions = async () => {
     });
 };
 
+const readDirRecursive = async (dir) => {
+    const dirents = await fs.readdir(dir, { withFileTypes: true });
+    const files = await Promise.all(dirents.map((dirent) => {
+        const res = path.resolve(dir, dirent.name);
+        return dirent.isDirectory() ? readDirRecursive(res) : res;
+    }));
+    return Array.prototype.concat(...files);
+};
+
 const checkTranscriptions = async () => {
     try {
-        const files = await fs.readdir('./public/transcriptions');
+        const files = await readDirRecursive('./public/transcriptions');
         files.sort();
         
         const startIndex = lastProcessedFile ? files.indexOf(lastProcessedFile) + 1 : 0;
@@ -31,15 +40,15 @@ const checkTranscriptions = async () => {
         const subscriptions = await fetchActiveSubscriptions();
         
         for (let i = startIndex; i < files.length; i++) {
-            const file = files[i];
-            const filePath = path.join('./public/transcriptions', file);
+            const filePath = files[i];
+            const fileName = path.basename(filePath);
             
             const content = await fs.readFile(filePath, 'utf-8');
             let transcription;
             try {
                 transcription = JSON.parse(content);
             } catch (e) {
-                console.error(`Invalid JSON in file ${file}`);
+                console.error(`Invalid JSON in file ${fileName}`);
                 continue;
             }
             
@@ -51,7 +60,7 @@ const checkTranscriptions = async () => {
                 }
             }
             
-            lastProcessedFile = file;
+            lastProcessedFile = filePath;
         }
         
     } catch (error) {
