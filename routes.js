@@ -21,12 +21,12 @@ router.post('/subscribe', async (req, res) => {
 
         const dbResult = await db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`,
             [regex, email, ip, browser, confirmationId]);
-        console.log("DB Result:", dbResult);  // Debugging
+        console.log("DB Result:", dbResult);
 
         const confirmationUrl = `http://yourdomain.com/verify/${confirmationId}`;
-        await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\\n\\nClick this link to confirm: ${confirmationUrl}`);
+        await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\n\nClick this link to confirm: ${confirmationUrl}`);
 
-        res.status(200).json({ status: 'success' });  // Fixed response
+        // res.status(200).json({ status: 'success' });  // Fixed response
     } catch (error) {
         console.error("Error in /subscribe: ", error);
         res.status(500).send('Internal Server Error');
@@ -49,7 +49,7 @@ router.post('/unsubscribe', async (req, res) => {
                 });
         });
         console.log("DB Result:", dbResult);
-        // res.status(200).json({ status: 'success' });
+        res.status(200).json({ status: 'Successfully unsubscribed.' });
     } catch (error) {
         console.error("Error in /subscribe: ", error);
         res.status(500).send('Internal Server Error');
@@ -60,12 +60,12 @@ router.get('/verify/:id', (req, res) => {
     const confirmationId = req.params.id;
     db.run(`UPDATE subscriptions SET verified = TRUE WHERE confirmationID = ?`, [confirmationId], function (err) {
         if (err) {
-            return res.send('Error verifying email');
+            return res.send('Error verifying email. Try again.');
         }
         if (this.changes === 0) {
-            return res.send('Invalid confirmation ID');
+            return res.send('Invalid confirmation ID!');
         }
-        res.send('Email verified');
+        res.send('Email verified. You will now receive email notifications when a transcription matches your subscription.');
     });
 });
 
