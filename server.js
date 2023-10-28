@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const basicAuth = require('express-basic-auth');
 const cookieParser = require('cookie-parser');
-const routes = require('./routes');  // Import routes
+const routes = require('./routes'); 
 
 // Constants
 const PORT = 3000;

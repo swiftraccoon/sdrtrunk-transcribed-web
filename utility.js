@@ -1,4 +1,8 @@
 const moment = require('moment-timezone');
+const path = require('path');
+const PUBLIC_DIR = path.join(__dirname, 'public');
+const fs = require('fs');
+
 
 function isWithinDateRange(fileName, startDate, endDate) {
     let dateMatch = fileName.match(/(\d{4}\d{2}\d{2})_(\d{2}\d{2}\d{2})/);

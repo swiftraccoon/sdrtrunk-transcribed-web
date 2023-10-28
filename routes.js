@@ -1,9 +1,14 @@
+const fs = require('fs');
+const path = require('path');
+const PUBLIC_DIR = path.join(__dirname, 'public');
+const renderHTML = require('./renderHTML');
+
 const searchTranscriptions = require('./search');
 const sendEmail = require('./email');
 const express = require('express');
 const router = express.Router();
 const db = require('./database');
-const { generateConfirmationId, getQueryParams, getDefaultDateTime } = require('./utility');
+const { generateConfirmationId, getQueryParams, getDefaultDateTime, processDirectory } = require('./utility');
 
 
 // Subscribe
@@ -97,3 +102,5 @@ router.get('/search', async (req, res) => {
     const results = await searchTranscriptions(query);
     res.send(results);
 });
+
+module.exports = router;
