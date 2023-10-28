@@ -15,18 +15,18 @@ const config = {
   confirmIDSubSTRBegin: 2, // utility.js generateConfirmationId
   confirmIDSubSTREnd: 34, // utility.js generateConfirmationId
   idDescriptionMap: {
-        '41001': 'EMS', // optionally transate talkgroup IDs to names
-        '41002': 'Fire Dept',
+        '10001': 'EMS', // optionally transate talkgroup IDs to names
+        '10002': 'Fire Dept',
         '': 'No Filter',
     },
     radio_id_names: {
-        "1610018": "EMS CAD", // optionally transate radio IDs to names
-        "1610019": "FD CAD",
+        "3640018": "EMS CAD", // optionally transate radio IDs to names
+        "1220036": "FD CAD",
         "": "No Filter",
     },
     broadcastifyLinks: `
-        <a href="https://www.broadcastify.com/calls/tg/7118/41001">41001:RuCoEMS</a> <br />
-        <a href="https://www.broadcastify.com/calls/tg/7118/41002">41002:RuCoFD</a> <br />`
+        <a href="https://www.broadcastify.com/calls/tg/7118/10001">10001:EMS</a> <br />
+        <a href="https://www.broadcastify.com/calls/tg/7118/10002">10002:FireDept</a> <br />`
 };
 
 module.exports = config;
