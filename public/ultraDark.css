@@ -6,7 +6,6 @@
     --border-gray: #212020;
 }
 
-/* Search Box */
 .search-box input[type="text"] {
     background-color: var(--hover-gray);
     border: 1px solid #003b46;
@@ -188,4 +187,47 @@ form {
 form > label {
     font-weight: bold;
     margin-right: 5px;
+}
+
+.subscription-form {
+    align-items: center;
+    background-color: var(--box-bg);
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.subscription-box input[type="text"] {
+    background-color: var(--hover-gray);
+    border: 1px solid #003b46;
+    border-radius: 12px; /* Rounded edges */
+    color: #979797; /* Text color */
+    padding: 10px;
+    width: 185px;
+    transition: all 0.3s ease;
+}
+
+/* Glow when focused */
+.subscription-box input[type="text"]:focus {
+    border-color: #004d5a;
+    box-shadow: 0 0 10px var(--border-gray);
+    outline: none;
+}
+
+.subscription_button_separator {
+    background: linear-gradient(to right, transparent, #444, transparent);
+    height: 1px;
+    margin: 5px 0;
+}
+
+.subscription_button {
+    background-color: var(--true-black);
+    border: 1px solid #303030;
+    border-radius: 5px;
+    color: var(--text-gray);
+    cursor: pointer;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+    text-align: left;
 }

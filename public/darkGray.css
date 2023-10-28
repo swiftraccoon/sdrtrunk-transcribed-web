@@ -71,6 +71,18 @@ button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #r
     vertical-align: middle;
 }
 
+.subscription_button {
+    background-color: var(--medium-gray);
+    border: none;
+    border-radius: 5px;
+    position: relative;
+    color: #fff;
+    cursor: pointer;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+    text-align: left;
+}
+
 .button:hover {
     box-shadow: 0 0 30px #474747;
 }
@@ -186,6 +198,12 @@ h3, h4 {
     margin: 20px 0;
 }
 
+.subscription_button_separator {
+    background: linear-gradient(to right, transparent, #444, transparent);
+    height: 1px;
+    margin: 5px 0;
+}
+
 .transcription, .eventbox {
     background-color: #111111;
     border: 1px solid #3a3a3a;
@@ -207,4 +225,30 @@ h3, h4 {
 
 .filterButton:hover {
     box-shadow: 0 0 20px #3d3d3d;
+}
+
+.subscription-form {
+    align-items: center;
+    background-color: var(--box-bg);
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.subscription-box input[type="text"] {
+    background-color: var(--box-bg);
+    border: 1px solid var(--medium-gray);
+    border-radius: 12px; /* Rounded edges */
+    color: var(--light-gray); /* Text color */
+    padding: 10px;
+    width: 185px;
+    transition: all 0.3s ease;
+}
+
+/* Glow when focused */
+.subscription-box input[type="text"]:focus {
+    border-color: var(--medium-gray);
+    box-shadow: 0 0 10px var(--medium-gray);
+    outline: none;
 }

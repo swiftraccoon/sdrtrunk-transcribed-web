@@ -240,8 +240,8 @@ form > label {
     transition: all 0.3s ease;
 }
 
-  /* Glow when focused */
-  .subscription-box input[type="text"]:focus {
+/* Glow when focused */
+.subscription-box input[type="text"]:focus {
     border-color: var(--link-color);
     box-shadow: 0 0 10px var(--link-color);
     outline: none;
