@@ -29,7 +29,7 @@ const loadCache = async () => {
   }
 };
 
-const searchTranscriptions = async (query) => {
+module.exports = async function searchTranscriptions(query) {
   if (!cache) {
     console.error("Cache is not initialized");
     return [];
@@ -84,5 +84,3 @@ const watchDirectories = async () => {
 
 // Initialize cache and set up file watchers
 loadCache().then(watchDirectories);
-
-module.exports = { searchTranscriptions };
