@@ -5,6 +5,7 @@ const basicAuth = require('express-basic-auth');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes'); 
 const bodyParser = require('body-parser');
+const { loadCache } = require('./search');
 
 
 // Constants

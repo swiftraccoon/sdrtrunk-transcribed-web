@@ -3,7 +3,6 @@ const path = require('path');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const renderHTML = require('./renderHTML');
 const searchTranscriptions = require('./search');
-console.log(searchTranscriptions);
 const sendEmail = require('./email');
 const express = require('express');
 const router = express.Router();

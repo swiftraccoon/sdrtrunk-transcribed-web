@@ -30,7 +30,7 @@ const loadCache = async () => {
   }
 };
 
-module.exports = async function searchTranscriptions(query) {
+async function searchTranscriptions(query) {
   if (!cache) {
     console.error("Cache is not initialized");
     return [];
@@ -56,39 +56,55 @@ module.exports = async function searchTranscriptions(query) {
   return results;
 };
 
-const watchDirectories = () => {
-  const watcher = chokidar.watch(path.join(PUBLIC_DIR, 'transcriptions'), {
-    ignored: /(^|[\/\\])\../, // ignore dotfiles
-    persistent: true,
-    ignoreInitial: false,
-    depth: 99 // watch subdirectories
-  });
-
-  watcher.on('add', async filePath => {
-    try {
-      const content = await fs.promises.readFile(filePath, 'utf-8');
+const updateCacheForDirectory = async (dirPath) => {
+  try {
+    const files = await fs.readdir(dirPath);
+    for (const fileName of files) {
+      const filePath = path.join(dirPath, fileName);
+      const content = await fs.readFile(filePath, 'utf-8');
       const parts = filePath.split('/');
       const dirName = parts[parts.length - 2];
-      const fileName = parts[parts.length - 1];
       cache[filePath] = {
         content: content,
         dir: dirName,
         file: fileName
       };
-    } catch (error) {
-      console.error(`Error reading new file ${filePath}:`, error);
+    }
+  } catch (error) {
+    console.error(`Error updating cache for directory ${dirPath}:`, error);
+  }
+};
+
+const watchDirectories = () => {
+  const watcher = chokidar.watch(path.join(PUBLIC_DIR, 'transcriptions'), {
+    ignored: /(^|[\/\\])\../,
+    persistent: true,
+    ignoreInitial: true,
+    depth: 0 // Only watch the immediate children of the root directory
+  });
+
+  watcher.on('addDir', async dirPath => {
+    await updateCacheForDirectory(dirPath);
+  });
+
+  watcher.on('unlinkDir', dirPath => {
+    // Remove all cache entries for this directory
+    for (const [filePath, fileData] of Object.entries(cache)) {
+      if (fileData.dir === path.basename(dirPath)) {
+        delete cache[filePath];
+      }
     }
   });
 
-  watcher.on('change', async filePath => {
-    // similar to 'add', update the cache
-  });
-
-  watcher.on('unlink', filePath => {
-    // remove from cache
-    delete cache[filePath];
+  watcher.on('change', async dirPath => {
+    await updateCacheForDirectory(dirPath);
   });
 };
 
 // Initialize cache and set up file watchers
-loadCache().then(watchDirectories);
+watchDirectories();
+
+module.exports = {
+  searchTranscriptions,
+  loadCache
+};
