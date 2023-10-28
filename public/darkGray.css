@@ -66,19 +66,19 @@ button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #r
     border-radius: 5px;
     color: var(--light-gray);
     cursor: pointer;
-    padding: 10px;
+    padding: 5px;
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     vertical-align: middle;
 }
 
 .subscription_button {
     background-color: var(--medium-gray);
-    border: none;
+    border: 1px solid var(--dark-gray);
     border-radius: 5px;
     position: relative;
-    color: #fff;
+    color: var(--light-gray);
     cursor: pointer;
-    padding: 10px;
+    padding: 5px;
     transition: background-color 0.3s ease;
     text-align: left;
 }
@@ -142,12 +142,13 @@ form > label {
     display: flex;
 }
 
-#playPauseBtn {
-    background-color: #353434;
-    border: none;
-    color: #111111;
+.playPauseBtn {
+    background-color: var(--medium-gray);
+    border: 1px solid var(--dark-gray);
+    border-radius: 5px;
+    color: var(--light-gray);
     cursor: pointer;
-    padding: 5px 10px;
+    padding: 0.25px 10px;
 }
 
 .playPauseBtn:hover {
@@ -192,10 +193,16 @@ h3, h4 {
 }
 
 /* Miscellaneous Styles */
-.separator, .filter_button_separator {
+.separator {
     background: linear-gradient(to right, transparent, var(--dark-gray), transparent);
     height: 2px;
-    margin: 20px 0;
+    margin: 5px 0;
+}
+
+.filter_button_separator {
+    background: linear-gradient(to right, transparent, var(--dark-gray), transparent);
+    height: 1px;
+    margin: 5px 0;
 }
 
 .subscription_button_separator {
@@ -219,7 +226,7 @@ h3, h4 {
     border-radius: 5px;
     color: #b1b1b1;
     cursor: pointer;
-    padding: 6px 55px;
+    padding: 3px 45px;
     transition: background-color 0.3s ease;
 }
 

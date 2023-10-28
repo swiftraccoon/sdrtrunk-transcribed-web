@@ -6,6 +6,9 @@ const db = require('./database');
 let lastProcessedFile = null;
 const serverBootTime = new Date();
 
+// Debugging Step 1: Log server boot time
+console.log(`Server boot time: ${serverBootTime}`);
+
 const shouldProcessFile = (fileName) => {
     // Extract the timestamp from the filename
     const timestampStr = fileName.match(/^(\d{8}_\d{6})/)[1];
@@ -17,6 +20,11 @@ const shouldProcessFile = (fileName) => {
     const fileDate = new Date(
         `${timestampStr.substring(0, 4)}-${timestampStr.substring(4, 6)}-${timestampStr.substring(6, 8)}T${timestampStr.substring(9, 11)}:${timestampStr.substring(11, 13)}:${timestampStr.substring(13, 15)}Z`
     );
+
+    // Debugging Step 3: Log files that are skipped
+    if (fileDate <= serverBootTime) {
+        console.log(`Skipping file ${fileName} as it is older than server boot time.`);
+    }
 
     // Compare with server boot time
     return fileDate > serverBootTime;
@@ -31,6 +39,8 @@ const fetchActiveSubscriptions = async () => {
             }
             resolve(rows);
         });
+        // Debugging Step 1: Log fetched subscriptions
+        console.log(`Fetched subscriptions: ${JSON.stringify(rows)}`);
     });
 };
 
@@ -75,12 +85,16 @@ const checkTranscriptions = async () => {
             
             for (const sub of subscriptions) {
                 const regex = new RegExp(sub.regex, 'i');
-                
+                // Debugging Step 2: Log the regex being tested
+                console.log(`Testing regex: ${sub.regex}`);
                 if (regex.test(transcription.text)) {
+                    console.log(`Match found for regex ${sub.regex} in file ${fileName}`);
                     await sendEmail(sub.email, `${regex}`, `${fileName} \n ${transcription.text} \n http://desktop.gov:3000/search?q=${regex}`);
                 }
             }
             lastProcessedFile = filePath;
+            // Debugging Step 5: Log the last processed file
+            console.log(`Last processed file: ${lastProcessedFile}`);
         }
     } catch (error) {
         console.error("Error in checkTranscriptions: ", error);

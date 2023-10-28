@@ -65,12 +65,14 @@ a:hover {
     display: flex;
 }
 
-#playPauseBtn {
-    background-color: #0260c5;
-    border: none;
-    color: var(--box-bg);
+.playPauseBtn {
+    background-color: var(--box-bg);
+    border: 1px solid #007BFF;
+    border-radius: 5px;
+    position: relative;
+    color: var(--link-color);
     cursor: pointer;
-    padding: 5px 10px;
+    padding: 0.25px 15px;
 }
 
 /* Custom Checkboxes */
@@ -108,7 +110,7 @@ button, input[type="date"], input[type="time"] {
     border-radius: 5px;
     color: var(--link-color);
     cursor: pointer;
-    padding: 10px;
+    padding: 5px;
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -118,13 +120,13 @@ button:hover, input[type="date"]:focus, input[type="time"]:focus {
 }
 
 .subscription_button {
-    background-color: var(--link-color);
-    border: none;
+    background-color: var(--box-bg);
+    border: 1px solid #007BFF;
     border-radius: 5px;
     position: relative;
-    color: #fff;
+    color: var(--link-color);
     cursor: pointer;
-    padding: 10px;
+    padding: 3px;
     transition: background-color 0.3s ease;
     text-align: left;
 }
@@ -168,10 +170,16 @@ h3 {
 }
 
 /* Miscellaneous Styles */
-.separator, .filter_button_separator {
+.separator {
+    background: linear-gradient(to right, transparent, #555555, transparent);
+    height: 4px;
+    margin: 7px 0;
+}
+
+.filter_button_separator {
     background: linear-gradient(to right, transparent, #444, transparent);
-    height: 2px;
-    margin: 20px 0;
+    height: 1px;
+    margin: 7px 0;
 }
 
 .subscription_button_separator {
@@ -190,12 +198,13 @@ h3 {
 }
 
 .filterButton {
-    background-color: var(--link-color);
-    border: none;
+    background-color: var(--box-bg);
+    border: 1px solid #007BFF;
     border-radius: 5px;
-    color: #fff;
+    position: relative;
+    color: var(--link-color);
     cursor: pointer;
-    padding: 6px 55px;
+    padding: 3px 45px;
     transition: background-color 0.3s ease;
 }
 
