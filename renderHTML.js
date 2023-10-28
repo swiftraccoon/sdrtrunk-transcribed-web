@@ -30,7 +30,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
         <!-- Title header -->
         <center><h3><a href="https://www.broadcastify.com/calls/node/2577">Node 2577: North Carolina VIPER</a><br /></h3>
         <div class="transcription">
-            <button type="button" class="collapsible">Search, Subscription, and Themes</button>
+            <button type="button" class="collapsible">Search | Subscription | Themes</button>
             <div class="collapsed"><br />
                 <!-- Search Box -->
                 <div class="search-box">

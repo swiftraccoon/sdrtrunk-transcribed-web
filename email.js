@@ -3,16 +3,16 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   host: 'smtp.protonmail.ch',
   port: 587,
-  secure: false, // use STARTTLS
+  secure: false,
   auth: {
-    user: 'USERNAME', // replace with your ProtonMail username
-    pass: 'PASSWORD'  // replace with your ProtonMail password
+    user: 'dylan@spindale.host', // replace with your ProtonMail username
+    pass: 'WUAWC5ZXFD8AAYFH'  // replace with your ProtonMail password
   }
 });
 
 const sendEmail = async (to, subject, text) => {
   const mailOptions = {
-    from: 'USERNAME', // sender address
+    from: 'dylan@spindale.host', // sender address
     to: to,          // list of receivers
     subject: subject,// subject line
     text: text       // plain text body
