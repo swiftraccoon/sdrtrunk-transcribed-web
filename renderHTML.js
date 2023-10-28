@@ -1,3 +1,5 @@
+const path = require('path');
+
 const idDescriptionMap = {
     '41001': 'EMS',
     '41002': 'Fire Dept',
@@ -230,7 +232,6 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                         });
                     });
                 });
-                
                 function playPauseAudio(button) {
                     let audio = button.previousElementSibling;
                     if (audio.paused) {
@@ -243,7 +244,6 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                 }
                 document.getElementById("specialTextToggle").addEventListener("change", function() {
                     var h3Elements = document.querySelectorAll("h3"); // Select ALL h3 elements
-                
                     h3Elements.forEach(h3 => {
                         if (this.checked) {
                             h3.classList.add("dateDisplay-text");  // Add the class

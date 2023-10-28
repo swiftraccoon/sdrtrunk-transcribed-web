@@ -118,7 +118,7 @@ button:hover, input[type="date"]:focus, input[type="time"]:focus {
 }
 
 /* Collapsible Sections */
-/* .collapsible {
+.collapsible {
     background-color: var(--link-color);
     border: none;
     border-radius: 5px;
@@ -132,9 +132,9 @@ button:hover, input[type="date"]:focus, input[type="time"]:focus {
 
 .collapsible:hover {
     background-color: var(--hover-color);
-} */
+}
 
-.collapsible {
+/* .collapsible {
     margin-bottom: 10px;
   }
   
@@ -154,9 +154,10 @@ button:hover, input[type="date"]:focus, input[type="time"]:focus {
   
   .collapsible.active .collapsible-content {
     display: block;
-  }
+  } */
 
 .collapsed {
+    display: none;
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.2s ease-out;
