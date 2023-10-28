@@ -1,10 +1,10 @@
+const config = require('./config');
+const WEB_URL = config.WEB_URL;
 const fs = require('fs').promises;
 const path = require('path');
 const sendEmail = require('./email');
 const db = require('./database');
 const myEmitter = require('./events');
-const config = require('./config');
-const WEB_URL = config.WEB_URL;
 
 let lastProcessedFile = null;
 let subscriptions = [];
@@ -14,32 +14,24 @@ const serverBootTime = new Date();
 console.log(`Server boot time: ${serverBootTime}`);
 
 const shouldProcessFile = (fileName) => {
-    // Extract just the file name, not the full path
-    const justFileName = path.basename(fileName);
-    
-    // Extract the timestamp from the file name
-    const match = justFileName.match(/^(\d{8}_\d{6})/);
-    
-    // Debugging: Log when the regex doesn't match
+    const match = fileName.match(/^(\d{8}_\d{6})/);
     if (!match) {
-        console.log(`Regex did not match for fileName: ${justFileName}`);
+        console.log(`Regex did not match for fileName: ${fileName}`);
         return false;
     }
-    
-    const timestampStr = match[1];
 
-    // Convert the extracted timestamp to a Date object
+    const timestampStr = match[1];
     const fileDate = new Date(
         `${timestampStr.substring(0, 4)}-${timestampStr.substring(4, 6)}-${timestampStr.substring(6, 8)}T${timestampStr.substring(9, 11)}:${timestampStr.substring(11, 13)}:${timestampStr.substring(13, 15)}Z`
     );
 
-    // Debugging Step 3: Log files that are skipped
+    // Assuming serverBootTime is a Date object
     if (fileDate <= serverBootTime) {
-        console.log(`Skipping file ${fileName} as it is older than server boot time.`);
+        console.log(`Skipping file ${fileName} as it is older ${fileDate} than server boot time ${serverBootTime}.`);
+        return false;
     }
 
-    // Compare with server boot time
-    return fileDate > serverBootTime;
+    return true;
 };
 
 const fetchActiveSubscriptions = async () => {
