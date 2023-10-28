@@ -32,6 +32,12 @@ app.use((req, next) => {
     next();
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Initialize cache before starting the server
+(async () => {
+    await loadCache();
+    
+    // Now that the cache is loaded, start the server
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
+  })();
