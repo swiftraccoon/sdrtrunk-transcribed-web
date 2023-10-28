@@ -8,6 +8,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('./database');
 const { generateConfirmationId, getQueryParams, getDefaultDateTime, processDirectory } = require('./utility');
+const myEmitter = require('./events');
 
 
 // Subscribe
@@ -49,6 +50,7 @@ router.post('/unsubscribe', async (req, res) => {
         });
         console.log("DB Result:", dbResult);
         res.status(200).json({ status: 'Successfully unsubscribed.' });
+        myEmitter.emit('emailVerified'); // Refresh subscriptions
     } catch (error) {
         console.error("Error in /subscribe: ", error);
         res.status(500).send('Internal Server Error');
@@ -65,6 +67,7 @@ router.get('/verify/:id', (req, res) => {
             return res.send('Invalid confirmation ID!');
         }
         res.send('Email verified. You will now receive email notifications when a transcription matches your subscription.');
+        myEmitter.emit('emailVerified');
     });
 });
 
