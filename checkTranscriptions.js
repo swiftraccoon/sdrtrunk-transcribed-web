@@ -22,9 +22,8 @@ const shouldProcessFile = (fileName) => {
 
     const timestampStr = match[1];
     const fileDate = new Date(
-        `${timestampStr.substring(0, 4)}-${timestampStr.substring(4, 6)}-${timestampStr.substring(6, 8)}T${timestampStr.substring(9, 11)}:${timestampStr.substring(11, 13)}:${timestampStr.substring(13, 15)}Z`
+        `${timestampStr.substring(0, 4)}-${timestampStr.substring(4, 6)}-${timestampStr.substring(6, 8)}T${timestampStr.substring(9, 11)}:${timestampStr.substring(11, 13)}:${timestampStr.substring(13, 15)}`
     );
-
 
     // Assuming serverBootTime is a Date object
     if (fileDate <= serverBootTime) {
