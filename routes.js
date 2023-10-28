@@ -27,8 +27,7 @@ router.post('/subscribe', async (req, res) => {
 
         const confirmationUrl = `${WEB_URL}/verify/${confirmationId}`;
         await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\n\nClick this link to confirm: ${confirmationUrl}`);
-
-        // res.status(200).json({ status: 'success' });  // Fixed response
+        res.status(200).json({ status: 'success' });  // Fixed response
     } catch (error) {
         console.error("Error in /subscribe: ", error);
         res.status(500).send('Internal Server Error');
