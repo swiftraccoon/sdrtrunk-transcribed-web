@@ -79,7 +79,7 @@ router.get('/robots.txt', (res) => {
 });
 
 router.get('/', async (req, res) => {
-    const { selectedRadioIds, selectedTalkgroupIds, userSelectedTheme, autoRefreshEnabled, refreshRate } = getQueryParams(req);
+    const { selectedRadioIds, selectedTalkgroupIds, userSelectedTheme } = getQueryParams(req);
 
     if (req.query.theme) {
         res.cookie('theme', req.query.theme);

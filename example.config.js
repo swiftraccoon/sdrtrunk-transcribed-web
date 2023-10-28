@@ -7,6 +7,8 @@ const config = {
   WEB_URL: 'http://localhost:3000', // base URL of the web server
   WEB_user0: 'user', // username for basic auth
   WEB_pass0: 'pass', // password for basic auth
+  unauthorizedResponseTitle: 'hihi',
+  unauthorizedResponseMessage: 'hihi',
   WEB_nodeID: 'nodeID', // nodeID listed in website title
   WEB_nodeName: 'nodeName', // nodeName listed in website title
   confirmIDSTRLength: 36, // utility.js generateConfirmationId
