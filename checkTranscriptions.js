@@ -12,10 +12,18 @@ let subscriptions = [];
 const serverBootTime = new Date();
 console.log(`Server boot time: ${serverBootTime}`);
 
-const fetchActiveSubscriptions = async () => {
-    const rows = await db.all(`SELECT email, regex FROM subscriptions WHERE verified = TRUE AND enabled = TRUE`);
-    subscriptions = rows;
-    console.log(`Fetched subscriptions: ${JSON.stringify(rows)}`);
+const fetchActiveSubscriptions = () => {
+    return new Promise((resolve, reject) => {
+        db.all(`SELECT email, regex FROM subscriptions WHERE verified = TRUE AND enabled = TRUE`, [], (err, rows) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            subscriptions = rows;
+            console.log(`Fetched subscriptions: ${JSON.stringify(rows)}`);
+            resolve(rows);
+        });
+    });
 };
 
 myEmitter.on('emailVerified', fetchActiveSubscriptions);
