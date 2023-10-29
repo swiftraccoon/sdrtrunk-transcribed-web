@@ -17,6 +17,7 @@ const {
     generateAssertionOptions,
     verifyAssertionResponse
 } = require('@simplewebauthn/server');
+const { requireAuth } = require('./authMiddleware');
 
 // Add this middleware near the top, after router is initialized
 router.use((req, res, next) => {
@@ -144,7 +145,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Subscribe
-router.post('/subscribe', async (req, res) => {
+router.post('/subscribe', requireAuth, async (req, res) => {
     try {
         const { regex, email } = req.body;
         const ip = req.ip;
@@ -165,7 +166,7 @@ router.post('/subscribe', async (req, res) => {
 });
 
 // Unsubscribe
-router.post('/unsubscribe', async (req, res) => {
+router.post('/unsubscribe', requireAuth, async (req, res) => {
     try {
         const { regex, email } = req.body;
         const ip = req.ip;
@@ -188,7 +189,7 @@ router.post('/unsubscribe', async (req, res) => {
     }
 });
 
-router.get('/verify/:id', (req, res) => {
+router.get('/verify/:id', requireAuth, (req, res) => {
     const confirmationId = req.params.id;
     db.run(`UPDATE subscriptions SET verified = TRUE WHERE confirmationID = ?`, [confirmationId], function (err) {
         if (err) {
@@ -207,7 +208,7 @@ router.get('/robots.txt', (res) => {
     res.send("User-agent: *\nDisallow: /");
 });
 
-router.get('/', async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
     const { selectedRadioIds, selectedTalkgroupIds, userSelectedTheme } = getQueryParams(req);
 
     if (req.query.theme) {
@@ -236,7 +237,7 @@ router.get('/', async (req, res) => {
 
 
 
-router.get('/search', async (req, res) => {
+router.get('/search', requireAuth, async (req, res) => {
     const query = req.query.q;
     if (!query) {
         return res.send('No query provided');
