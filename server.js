@@ -44,8 +44,9 @@ const requireAuth = (req, res, next) => {
 
 app.use('/', requireAuth, routes);
 
-app.post('/login', async (req, res) => {
-    // Handle login logic here
+app.use((err, req, res, next) => {
+    console.error('Global error handler:', err.stack);
+    res.status(500).send('Internal Server Error');
 });
 
 const privateKey = fs.readFileSync('server.key', 'utf8');

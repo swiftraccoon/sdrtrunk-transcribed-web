@@ -109,16 +109,23 @@ router.post('/webauthn/finish-login', async (req, res) => {
 
 // Add a new POST route for login
 router.post('/login', async (req, res) => {
-    console.log("Login POST request received");
-    const { username, password } = req.body;
-    console.log(`Username: ${username}, Password: ${password}`);
+    try {
+        console.log("Login POST request received");
+        const { username, password } = req.body;
+        console.log(`Username: ${username}, Password: ${password}`);
 
-    // Validate username/password
-    if (username === config.WEB_user0 && password === config.WEB_pass0) {
-        req.session.isAuthenticated = true;
-        res.redirect('/');  // Redirect to the main page
-    } else {
-        res.status(401).send('Invalid username or password');
+        // Validate username/password
+        if (username === config.WEB_user0 && password === config.WEB_pass0) {
+            console.log("Authentication successful");
+            req.session.isAuthenticated = true;
+            res.redirect('/');  // Redirect to the main page
+        } else {
+            console.log("Invalid username or password");
+            res.status(401).send('Invalid username or password');
+        }
+    } catch (error) {
+        console.error("Error in /login:", error);
+        res.status(500).send('Internal Server Error');
     }
 });
 
