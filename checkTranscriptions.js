@@ -8,6 +8,7 @@ const myEmitter = require('./events');
 
 let processedFiles = new Set(); 
 let lastProcessedFile = null;
+let lastProcessedTimestamp = "00000000_000000";
 let subscriptions = [];
 const serverBootTime = new Date();
 
@@ -86,10 +87,11 @@ const checkTranscriptions = async () => {
         for (let i = 0; i < files.length; i++) {
             const filePath = files[i];
             const fileName = path.basename(filePath);
+            const timestamp = fileName.match(/^(\\d{8}_\\d{6})/)[1];
 
-            // Skip the file if it has already been processed
-            if (processedFiles.has(fileName)) {
-                console.log(`Skipping already processed file: ${fileName}`);
+            // Skip the file if its timestamp is not newer than the last processed timestamp
+            if (timestamp <= lastProcessedTimestamp) {
+                console.log(`Skipping file ${fileName} as it is not newer than the last processed file.`);
                 continue;
             }
 
@@ -117,7 +119,7 @@ const checkTranscriptions = async () => {
                     await sendEmail(sub.email, `${regex}`, `${fileName} \n ${transcription.text} \n ${WEB_URL}/search?q=${regex}`);
                 }
             }
-            processedFiles.add(fileName);
+            lastProcessedTimestamp = timestamp;
             lastProcessedFile = filePath;
             // Debugging Step 5: Log the last processed file
             console.log(`Last processed file: ${lastProcessedFile}`);
