@@ -10,6 +10,8 @@ const checkTranscriptions = require('./checkTranscriptions');
 const config = require('./config');
 const PORT = config.PORT;
 const sessionSecretKey = config.sessionSecretKey;
+const privateKeyPath = config.privateKeyPath;
+const certificatePath = config.certificatePath;
 const https = require('https');  // Import the https module
 const fs = require('fs');  // Import the fs module
 
@@ -42,8 +44,8 @@ app.use((err, req, res, next) => {
     res.status(500).send('Internal Server Error');
 });
 
-const privateKey = fs.readFileSync('server.key', 'utf8');
-const certificate = fs.readFileSync('server.cert', 'utf8');
+const privateKey = fs.readFileSync(`${privateKeyPath}`, 'utf8');
+const certificate = fs.readFileSync(`${certificatePath}`, 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 const httpsServer = https.createServer(credentials, app);
 // Initialize cache before starting the server
