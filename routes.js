@@ -127,15 +127,15 @@ router.post('/login', async (req, res) => {
     if (username === config.WEB_user0 && password === config.WEB_pass0) {
         console.log("Authentication successful");
         req.session.isAuthenticated = true;
-        console.log("Session after setting isAuthenticated:", req.session);  // Debugging line 2
+        // console.log("Session after setting isAuthenticated:", req.session);  // Debugging line 2
 
         // Save the session
         req.session.save((err) => {
-            console.log("Session before saving:", req.session);  // Debugging line 3
+            // console.log("Session before saving:", req.session);  // Debugging line 3
             if (err) {
                 console.error("Error saving session:", err);
             }
-            console.log("Session after saving:", req.session);  // Debugging line 3
+            // console.log("Session after saving:", req.session);  // Debugging line 3
             res.redirect('/');
         });
     } else {
