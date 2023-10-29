@@ -117,33 +117,26 @@ router.post('/webauthn/finish-login', async (req, res) => {
 
 // Add a new POST route for login
 router.post('/login', async (req, res) => {
-    try {
-        console.log("Login POST request received");
-        console.log("Headers:", req.headers);
-        console.log("Session State:", req.session);
+    const { username, password } = req.body;
+    console.log(`Received username: ${username}, password: ${password}`);  // Debugging line 1
 
-        const { username, password } = req.body;
-        console.log(`Username: ${username}, Password: ${password}`);
+    if (username === config.WEB_user0 && password === config.WEB_pass0) {
+        console.log("Authentication successful");
+        req.session.isAuthenticated = true;
+        console.log("Session after setting isAuthenticated:", req.session);  // Debugging line 2
 
-        // Validate username/password
-        if (username === config.WEB_user0 && password === config.WEB_pass0) {
-            console.log("Authentication successful");
-            req.session.isAuthenticated = true;
-            req.session.save(err => {
-                if (err) {
-                    console.error("Session save error:", err);
-                }
-                res.redirect('/');
-            });
-            console.log("Updated Session State:", req.session);
-            res.redirect('/');  // Redirect to the main page
-        } else {
-            console.log("Invalid username or password");
-            res.status(401).send('Invalid username or password');
-        }
-    } catch (error) {
-        console.error("Error in /login:", error);
-        res.status(500).send('Internal Server Error');
+        // Save the session
+        req.session.save((err) => {
+            console.log("Session before saving:", req.session);  // Debugging line 3
+            if (err) {
+                console.error("Error saving session:", err);
+            }
+            console.log("Session after saving:", req.session);  // Debugging line 3
+            res.redirect('/');
+        });
+    } else {
+        console.log("Authentication failed");
+        res.redirect('/login');
     }
 });
 
