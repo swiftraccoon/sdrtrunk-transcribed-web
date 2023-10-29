@@ -111,6 +111,8 @@ router.post('/webauthn/finish-login', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         console.log("Login POST request received");
+        console.log("Session State:", req.session);
+
         const { username, password } = req.body;
         console.log(`Username: ${username}, Password: ${password}`);
 
@@ -118,6 +120,7 @@ router.post('/login', async (req, res) => {
         if (username === config.WEB_user0 && password === config.WEB_pass0) {
             console.log("Authentication successful");
             req.session.isAuthenticated = true;
+            console.log("Updated Session State:", req.session);
             res.redirect('/');  // Redirect to the main page
         } else {
             console.log("Invalid username or password");

@@ -9,17 +9,12 @@ const { loadCache } = require('./search');
 const checkTranscriptions = require('./checkTranscriptions');
 const config = require('./config');
 const PORT = config.PORT;
-const WEB_user0 = config.WEB_user0;
-const WEB_pass0 = config.WEB_pass0;
 const sessionSecretKey = config.sessionSecretKey;
-const unauthorizedResponseTitle = config.unauthorizedResponseTitle;
-const unauthorizedResponseMessage = config.unauthorizedResponseMessage;
 const https = require('https');  // Import the https module
 const fs = require('fs');  // Import the fs module
 
 // Constants
 const PUBLIC_DIR = path.join(__dirname, 'public');
-const users = { [WEB_user0]: WEB_pass0 };
 
 // Initialize app
 const app = express();
@@ -35,9 +30,13 @@ app.use('/public', express.static(PUBLIC_DIR));
 
 // Authentication middleware
 const requireAuth = (req, res, next) => {
+    console.log("Checking authentication");
+    console.log("Session State:", req.session);
+
     if (req.session && req.session.isAuthenticated) {
         next();
     } else {
+        console.log("Redirecting to login");
         res.redirect('/login');
     }
 };
