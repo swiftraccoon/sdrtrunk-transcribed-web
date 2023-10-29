@@ -18,6 +18,14 @@ const {
     verifyAssertionResponse
 } = require('@simplewebauthn/server');
 
+// Add this middleware near the top, after router is initialized
+router.use((req, res, next) => {
+    if (req.method === 'POST') {
+        console.log('POST request body:', req.body);
+    }
+    next();
+});
+
 // Start WebAuthn registration
 router.get('/webauthn/start-register', async (req, res) => {
     // Define the relying party (your application)
@@ -111,6 +119,7 @@ router.post('/webauthn/finish-login', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         console.log("Login POST request received");
+        console.log("Headers:", req.headers);
         console.log("Session State:", req.session);
 
         const { username, password } = req.body;
@@ -120,6 +129,12 @@ router.post('/login', async (req, res) => {
         if (username === config.WEB_user0 && password === config.WEB_pass0) {
             console.log("Authentication successful");
             req.session.isAuthenticated = true;
+            req.session.save(err => {
+                if (err) {
+                    console.error("Session save error:", err);
+                }
+                res.redirect('/');
+            });
             console.log("Updated Session State:", req.session);
             res.redirect('/');  // Redirect to the main page
         } else {
