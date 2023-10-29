@@ -1,9 +1,9 @@
 // Import modules
 const express = require('express');
 const path = require('path');
-const basicAuth = require('express-basic-auth');
+const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const routes = require('./routes'); 
+const routes = require('./routes');
 const bodyParser = require('body-parser');
 const { loadCache } = require('./search');
 const checkTranscriptions = require('./checkTranscriptions');
@@ -11,8 +11,11 @@ const config = require('./config');
 const PORT = config.PORT;
 const WEB_user0 = config.WEB_user0;
 const WEB_pass0 = config.WEB_pass0;
+const sessionSecretKey = config.sessionSecretKey;
 const unauthorizedResponseTitle = config.unauthorizedResponseTitle;
 const unauthorizedResponseMessage = config.unauthorizedResponseMessage;
+const https = require('https');  // Import the https module
+const fs = require('fs');  // Import the fs module
 
 // Constants
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -23,28 +26,38 @@ const app = express();
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({ secret: `${sessionSecretKey}`, resave: false, saveUninitialized: true }));
 
-// Middleware
-app.use(basicAuth({
-    users: users,
-    challenge: true,
-    realm: unauthorizedResponseTitle,
-    unauthorizedResponse: unauthorizedResponseMessage
-}));
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
 app.use('/public', express.static(PUBLIC_DIR));
-app.use('/', routes);  // Use the imported routes
-// app.use((req, next) => {
-//     console.log('req.body:', req.body);
-//     next();
-// });
 
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+    if (req.session && req.session.isAuthenticated) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+};
+
+app.use('/', requireAuth, routes);
+
+app.post('/login', async (req, res) => {
+    // Handle login logic here
+});
+
+const privateKey = fs.readFileSync('server.key', 'utf8');
+const certificate = fs.readFileSync('server.cert', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+const httpsServer = https.createServer(credentials, app);
 // Initialize cache before starting the server
 (async () => {
     await loadCache();
-    
     // Now that the cache is loaded, start the server
-    app.listen(PORT, () => {
-        console.log(`Server running on http://localhost:${PORT}`);
+    httpsServer.listen(PORT, () => {
+        console.log(`Server running on https://localhost:${PORT}`);
     });
     setInterval(checkTranscriptions, 60 * 1000); // Check every minute
-  })();
+})();

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <style>
+    /* Dark Mode */
+    * {
+        box-sizing: border-box;
+    }
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    /* Form Styling */
+    form {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      background-color: #1e1e1e;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #333;
+      border-radius: 5px;
+    }
+    input[type="submit"],
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+    input[type="submit"]:hover,
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm" action="/login" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username">
+    <br>
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password">
+    <br>
+    <input type="submit" value="Login">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    Register and login using only a yubikey:<br><br>
+    <label for="yubikey">YubiKey:</label>
+    <input type="text" id="yubikey" name="yubikey">
+    <br>
+    <button onclick="startWebAuthnRegister()">Register with WebAuthn</button>
+    <button onclick="startWebAuthnLogin()">Login with WebAuthn</button>
+  </form>
+
+  <script>
+    // JavaScript to detect YubiKey input and submit form
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('loginForm');
+      const yubikeyInput = document.getElementById('yubikey');
+      
+      yubikeyInput.addEventListener('input', (e) => {
+        if (e.target.value.length >= 44) {  // YubiKey OTP is usually 44 characters
+          form.submit();
+        }
+      });
+    });
+    // Trigger WebAuthn registration
+    async function startWebAuthnRegister() {
+        const response = await fetch('/webauthn/start-register');
+        const options = await response.json();
+        const credential = await navigator.credentials.create({ publicKey: options });
+
+        // Send the credential back to the server for verification
+        const verifyResponse = await fetch('/webauthn/finish-register', {
+            method: 'POST',
+            body: JSON.stringify(credential),
+        });
+
+        if (verifyResponse.ok) {
+            alert('Registration successful!');
+        } else {
+            alert('Registration failed.');
+        }
+    }
+    // Trigger WebAuthn authentication
+    async function startWebAuthnRegister() {
+        try {
+            const response = await fetch('/webauthn/start-register');
+            
+            if (response.ok) {
+                const options = await response.json();
+                const credential = await navigator.credentials.create({ publicKey: options });
+
+                const verifyResponse = await fetch('/webauthn/finish-register', {
+                    method: 'POST',
+                    body: JSON.stringify(credential),
+                });
+
+                if (verifyResponse.ok) {
+                    alert('Registration successful!');
+                } else {
+                    alert('Registration failed.');
+                }
+            } else {
+                console.error("Server returned an error:", await response.text());
+            }
+        } catch (error) {
+            console.error("An error occurred:", error);
+        }
+    }
+  </script>
+</body>
+</html>

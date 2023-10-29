@@ -1,5 +1,6 @@
 const moment = require('moment-timezone');
 const path = require('path');
+const bcrypt = require('bcrypt');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const fs = require('fs');
 const config = require('./config');
@@ -7,6 +8,13 @@ const confirmIDSTRLength = config.confirmIDSTRLength;
 const confirmIDSubSTRBegin = config.confirmIDSubSTRBegin;
 const confirmIDSubSTREnd = config.confirmIDSubSTREnd;
 
+const hashPassword = async (password) => {
+    return await bcrypt.hash(password, 10);
+};
+
+const validateYubiKey = (yubikeyId) => {
+    // Validate YubiKey here
+};
 
 function isWithinDateRange(fileName, startDate, endDate) {
     let dateMatch = fileName.match(/(\d{4}\d{2}\d{2})_(\d{2}\d{2}\d{2})/);
@@ -109,5 +117,7 @@ module.exports = {
     getQueryParams,
     getDefaultDateTime,
     processDirectory,
-    generateConfirmationId
+    generateConfirmationId,
+    hashPassword,
+    validateYubiKey
 };
