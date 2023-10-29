@@ -20,13 +20,13 @@ const {
 const { requireAuth } = require('./authMiddleware');
 
 // Add this middleware near the top, after router is initialized
-router.use((req, res, next) => {
-    if (req.method === 'POST') {
-        console.log('POST request body:', req.body);
-        console.log("POST request headers:", req.headers);  // Debugging line 5
-    }
-    next();
-});
+// router.use((req, res, next) => {
+//     if (req.method === 'POST') {
+//         console.log('POST request body:', req.body);
+//         console.log("POST request headers:", req.headers);  // Debugging line 5
+//     }
+//     next();
+// });
 
 // Start WebAuthn registration
 router.get('/webauthn/start-register', async (req, res) => {
@@ -119,10 +119,10 @@ router.post('/webauthn/finish-login', async (req, res) => {
 
 // Add a new POST route for login
 router.post('/login', async (req, res) => {
-    console.log("Received POST /login");
-    console.log("Request Body:", req.body);
+    // console.log("Received POST /login");
+    // console.log("Request Body:", req.body);
     const { username, password } = req.body;
-    console.log(`Received username: ${username}, password: ${password}`);  // Debugging line 1
+    // console.log(`Received username: ${username}, password: ${password}`);  // Debugging line 1
 
     if (username === config.WEB_user0 && password === config.WEB_pass0) {
         console.log("Authentication successful");

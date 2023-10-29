@@ -24,13 +24,13 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({ secret: `${sessionSecretKey}`, resave: false, saveUninitialized: true }));
-console.log("Session Secret Key Length:", sessionSecretKey.length);
+// console.log("Session Secret Key Length:", sessionSecretKey.length);
 
-app.use((req, res, next) => {
-    console.log(`Incoming request: ${req.method} ${req.url}`);
-    console.log("Request Headers:", req.headers); 
-    next();
-});
+// app.use((req, res, next) => {
+//     console.log(`Incoming request: ${req.method} ${req.url}`);
+//     console.log("Request Headers:", req.headers); 
+//     next();
+// });
 
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
