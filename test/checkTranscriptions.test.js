@@ -16,7 +16,9 @@ describe('checkTranscriptions', () => {
   });
   
   afterEach(() => {
-    sandbox.restore();
+    readDirRecursiveStub.restore();
+    readFileStub.restore();
+    sendEmailStub.restore();
   });
 
   it('should check files created since server boot', async () => {
