@@ -22,6 +22,7 @@ const {
 router.use((req, res, next) => {
     if (req.method === 'POST') {
         console.log('POST request body:', req.body);
+        console.log("POST request headers:", req.headers);  // Debugging line 5
     }
     next();
 });

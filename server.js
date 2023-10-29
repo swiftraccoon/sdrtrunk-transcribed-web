@@ -26,6 +26,7 @@ console.log("Session Secret Key Length:", sessionSecretKey.length);
 
 app.use((req, res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url}`);
+    console.log("Request Headers:", req.headers); 
     next();
 });
 

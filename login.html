@@ -68,11 +68,8 @@
     <input type="password" id="password" name="password">
     <br>
     <input type="submit" value="Login">
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
+  </form><br><br><br><br>
+  <form id="loginForm">
     Register and login using only a yubikey:<br><br>
     <label for="yubikey">YubiKey:</label>
     <input type="text" id="yubikey" name="yubikey">
@@ -94,7 +91,11 @@
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();  // Prevent default form submission
-        console.log("Form Data:", new FormData(form));
+        const formData = new FormData(form);
+        console.log("Form Data:", formData);  // Debugging line 6
+        for (let [key, value] of formData.entries()) {  // Debugging line 7
+            console.log(key, value);
+        }
         form.submit();  // Manually submit the form
     });
     });
