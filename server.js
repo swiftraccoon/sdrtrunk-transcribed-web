@@ -42,6 +42,8 @@ const requireAuth = (req, res, next) => {
     if (req.session && req.session.isAuthenticated) {
         next();
     } else {
+        console.log("req.session: ", req.session)
+        console.log("req.session.isAuthenticated: ", req.session.isAuthenticated)
         console.log("Redirecting to login");
         res.redirect('/login');
     }

@@ -92,8 +92,10 @@
         }
     });
 
-    form.addEventListener('submit', () => {
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();  // Prevent default form submission
         console.log("Form Data:", new FormData(form));
+        form.submit();  // Manually submit the form
     });
     });
     // Trigger WebAuthn registration
