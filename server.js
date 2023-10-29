@@ -12,7 +12,6 @@ const PORT = config.PORT;
 const sessionSecretKey = config.sessionSecretKey;
 const https = require('https');  // Import the https module
 const fs = require('fs');  // Import the fs module
-const { requireAuth } = require('./authMiddleware');
 
 // Constants
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -35,21 +34,6 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 app.use('/public', express.static(PUBLIC_DIR));
-
-// Authentication middleware
-// const requireAuth = (req, res, next) => {
-//     console.log("Checking authentication");
-//     console.log("Session State:", req.session);
-
-//     if (req.session && req.session.isAuthenticated) {
-//         next();
-//     } else {
-//         console.log("req.session: ", req.session)
-//         console.log("req.session.isAuthenticated: ", req.session.isAuthenticated)
-//         console.log("Redirecting to login");
-//         res.redirect('/login');
-//     }
-// };
 
 app.use('/', routes);
 
