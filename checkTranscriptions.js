@@ -27,7 +27,7 @@ const shouldProcessFile = (fileName) => {
 
     // Assuming serverBootTime is a Date object
     if (fileDate <= serverBootTime) {
-        console.log(`Skipping file ${fileName}\nfileDate: ${fileDate} serverBootTime: ${serverBootTime}.`);
+        console.log(`Skipping file ${fileName}\nfileDate: ${fileDate}\nserverBootTime: ${serverBootTime}.`);
         return false;
     }
 
