@@ -87,7 +87,7 @@ const checkTranscriptions = async () => {
         for (let i = 0; i < files.length; i++) {
             const filePath = files[i];
             const fileName = path.basename(filePath);
-            const match = fileName.match(/^(\\d{8}_\\d{6})/);
+            const match = fileName.match(/^(\d{8}_\d{6})/);
             // Check if the regex match was successful
             if (!match) {
                 console.log(`Skipping file ${fileName} as it doesn't match the expected format.`);
