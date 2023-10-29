@@ -1,135 +1,84 @@
 const config = require('./config');
-const WEB_URL = config.WEB_URL;
 const fs = require('fs').promises;
 const path = require('path');
 const sendEmail = require('./email');
 const db = require('./database');
 const myEmitter = require('./events');
 
-let processedFiles = new Set(); 
 let lastProcessedFile = null;
 let lastProcessedTimestamp = "00000000_000000";
 let subscriptions = [];
-const serverBootTime = new Date();
 
-// Debugging Step 1: Log server boot time
+const serverBootTime = new Date();
 console.log(`Server boot time: ${serverBootTime}`);
 
-const shouldProcessFile = (fileName) => {
-    const match = fileName.match(/^(\d{8}_\d{6})/);
-    if (!match) {
-        console.log(`Regex did not match for fileName: ${fileName}`);
-        return false;
-    }
-
-    const timestampStr = match[1];
-    const fileDate = new Date(
-        `${timestampStr.substring(0, 4)}-${timestampStr.substring(4, 6)}-${timestampStr.substring(6, 8)}T${timestampStr.substring(9, 11)}:${timestampStr.substring(11, 13)}:${timestampStr.substring(13, 15)}`
-    );
-
-    // Assuming serverBootTime is a Date object
-    if (fileDate <= serverBootTime) {
-        console.log(`Skipping file ${fileName}\nfileDate: ${fileDate}\nserverBootTime: ${serverBootTime}.`);
-        return false;
-    }
-
-    return true;
-};
-
 const fetchActiveSubscriptions = async () => {
-    return new Promise((resolve, reject) => {
-        db.all(`SELECT email, regex FROM subscriptions WHERE verified = TRUE AND enabled = TRUE`, [], (err, rows) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            subscriptions = rows;  // Update the subscriptions array
-            console.log(`Fetched subscriptions: ${JSON.stringify(rows)}`);
-            resolve(rows);
-        });
-    });
+    const rows = await db.all(`SELECT email, regex FROM subscriptions WHERE verified = TRUE AND enabled = TRUE`);
+    subscriptions = rows;
+    console.log(`Fetched subscriptions: ${JSON.stringify(rows)}`);
 };
 
-// Listen for the 'emailVerified' event to refresh subscriptions
-myEmitter.on('emailVerified', () => {
-    console.log('Someone verified their email; refreshing active subscriptions..');
-    fetchActiveSubscriptions();
-});
+myEmitter.on('emailVerified', fetchActiveSubscriptions);
 
 const readDirRecursive = async (dir) => {
     const dirents = await fs.readdir(dir, { withFileTypes: true });
     const files = await Promise.all(dirents.map((dirent) => {
-        if (dirent && dirent.name) {
-            const res = path.resolve(dir, dirent.name);
-            return dirent.isDirectory() ? readDirRecursive(res) : res;
-        }
+        const res = path.resolve(dir, dirent.name);
+        return dirent.isDirectory() ? readDirRecursive(res) : res;
     }));
-    return Array.prototype.concat(...files);
+    return files.flat();
+};
+
+const shouldProcessFile = (fileName, mostRecentDate) => {
+    const match = fileName.match(/^(\d{8}_\d{6})/);
+    if (!match) return false;
+
+    const timestampStr = match[1];
+    const fileDate = new Date(timestampStr.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
+
+    return fileDate > mostRecentDate;
+};
+
+const processFile = async (filePath, fileName) => {
+    const content = await fs.readFile(filePath, 'utf-8');
+    let transcription;
+    try {
+        transcription = JSON.parse(content);
+    } catch (e) {
+        console.error(`Invalid JSON in file ${fileName}`);
+        return;
+    }
+
+    for (const sub of subscriptions) {
+        const regex = new RegExp(sub.regex, 'i');
+        if (regex.test(transcription.text)) {
+            await sendEmail(sub.email, `${regex}`, `${fileName} \n ${transcription.text} \n ${config.WEB_URL}/search?q=${regex}`);
+        }
+    }
 };
 
 const checkTranscriptions = async () => {
-    console.log("Entered checkTranscriptions function");
     try {
         const files = await readDirRecursive('./public/transcriptions');
+        files.sort();
+        const mostRecentTimestamp = path.basename(files[0]).match(/^(\d{8}_\d{6})/)[1];
+        const mostRecentDate = new Date(mostRecentTimestamp.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
 
-        // Sort files by their extracted timestamps in descending order
-        files.sort((a, b) => {
-            const timestampA = path.basename(a).match(/^(\d{8}_\d{6})/);
-            const timestampB = path.basename(b).match(/^(\d{8}_\d{6})/);
+        await fetchActiveSubscriptions();
 
-            if (timestampA && timestampB) {
-                return timestampB[1].localeCompare(timestampA[1]);
-            }
-
-            return 0;
-        });
-
-        const subscriptions = await fetchActiveSubscriptions();
-
-        for (let i = 0; i < files.length; i++) {
-            const filePath = files[i];
+        for (const filePath of files) {
             const fileName = path.basename(filePath);
             const match = fileName.match(/^(\d{8}_\d{6})/);
-            // Check if the regex match was successful
-            if (!match) {
-                console.log(`Skipping file ${fileName} as it doesn't match the expected format.`);
-                continue;
-            }
+            if (!match) continue;
+
             const timestamp = match[1];
-            // Skip the file if its timestamp is not newer than the last processed timestamp
-            if (timestamp <= lastProcessedTimestamp) {
-                console.log(`Skipping file ${fileName} as it is not newer than the last processed file.`);
-                continue;
-            }
+            if (timestamp <= lastProcessedTimestamp) continue;
 
-            // Skip the file if it should not be processed, but don't break the loop
-            if (!shouldProcessFile(fileName)) {
-                console.log(`Skipping file ${fileName} as it is older than server boot time.`);
-                continue;
+            if (shouldProcessFile(fileName, mostRecentDate)) {
+                await processFile(filePath, fileName);
+                lastProcessedTimestamp = timestamp;
+                lastProcessedFile = filePath;
             }
-
-            const content = await fs.readFile(filePath, 'utf-8');
-            let transcription;
-            try {
-                transcription = JSON.parse(content);
-            } catch (e) {
-                console.error(`Invalid JSON in file ${fileName}`);
-                continue;
-            }
-
-            for (const sub of subscriptions) {
-                const regex = new RegExp(sub.regex, 'i');
-                // Debugging Step 2: Log the regex being tested
-                console.log(`Testing regex: ${sub.regex}`);
-                if (regex.test(transcription.text)) {
-                    console.log(`Match found for regex ${sub.regex} in file ${fileName}`);
-                    await sendEmail(sub.email, `${regex}`, `${fileName} \n ${transcription.text} \n ${WEB_URL}/search?q=${regex}`);
-                }
-            }
-            lastProcessedTimestamp = timestamp;
-            lastProcessedFile = filePath;
-            // Debugging Step 5: Log the last processed file
-            console.log(`Last processed file: ${lastProcessedFile}`);
         }
     } catch (error) {
         console.error("Error in checkTranscriptions: ", error);
