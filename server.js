@@ -22,6 +22,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({ secret: `${sessionSecretKey}`, resave: false, saveUninitialized: true }));
+console.log("Session Secret Key Length:", sessionSecretKey.length);
 
 app.use((req, res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url}`);

@@ -117,6 +117,8 @@ router.post('/webauthn/finish-login', async (req, res) => {
 
 // Add a new POST route for login
 router.post('/login', async (req, res) => {
+    console.log("Received POST /login");
+    console.log("Request Body:", req.body);
     const { username, password } = req.body;
     console.log(`Received username: ${username}, password: ${password}`);  // Debugging line 1
 

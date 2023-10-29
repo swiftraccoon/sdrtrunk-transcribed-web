@@ -82,16 +82,19 @@
   </form>
 
   <script>
-    // JavaScript to detect YubiKey input and submit form
     document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('loginForm');
-      const yubikeyInput = document.getElementById('yubikey');
-      
-      yubikeyInput.addEventListener('input', (e) => {
+    const form = document.getElementById('loginForm');
+    const yubikeyInput = document.getElementById('yubikey');
+    
+    yubikeyInput.addEventListener('input', (e) => {
         if (e.target.value.length >= 44) {  // YubiKey OTP is usually 44 characters
-          form.submit();
+        form.submit();
         }
-      });
+    });
+
+    form.addEventListener('submit', () => {
+        console.log("Form Data:", new FormData(form));
+    });
     });
     // Trigger WebAuthn registration
     async function startWebAuthnRegister() {
