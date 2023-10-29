@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 const search = require('../search');
-
+const config = require('../example.config');
 
 
 describe('searchTranscriptions', () => {
