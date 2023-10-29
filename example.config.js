@@ -1,6 +1,6 @@
 const config = {
-    privateKeyPath: '/etc/letsencrypt/live/sdr.spindale.host/privkey.pem', // path to private key
-    certificatePath: '/etc/letsencrypt/live/sdr.spindale.host/fullchain.pem', // path to certificate
+    privateKeyPath: '/etc/letsencrypt/live/your.host/privkey.pem', // path to private key
+    certificatePath: '/etc/letsencrypt/live/your.host/fullchain.pem', // path to certificate
     PORT: 3000, // port to run the server on
     EMAIL_HOST: 'smtp.email.gov', // email server for SMTP
     EMAIL_PORT: 587, // port for SMTP
