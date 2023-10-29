@@ -6,6 +6,7 @@ const sendEmail = require('./email');
 const db = require('./database');
 const myEmitter = require('./events');
 
+let processedFiles = new Set(); 
 let lastProcessedFile = null;
 let subscriptions = [];
 const serverBootTime = new Date();
@@ -86,10 +87,16 @@ const checkTranscriptions = async () => {
             const filePath = files[i];
             const fileName = path.basename(filePath);
 
-            // If the file should not be processed, break out of the loop
+            // Skip the file if it has already been processed
+            if (processedFiles.has(fileName)) {
+                console.log(`Skipping already processed file: ${fileName}`);
+                continue;
+            }
+
+            // Skip the file if it should not be processed, but don't break the loop
             if (!shouldProcessFile(fileName)) {
-                console.log(`Stopping at file ${fileName} as it is older than server boot time.`);
-                break;
+                console.log(`Skipping file ${fileName} as it is older than server boot time.`);
+                continue;
             }
 
             const content = await fs.readFile(filePath, 'utf-8');
@@ -110,6 +117,7 @@ const checkTranscriptions = async () => {
                     await sendEmail(sub.email, `${regex}`, `${fileName} \n ${transcription.text} \n ${WEB_URL}/search?q=${regex}`);
                 }
             }
+            processedFiles.add(fileName);
             lastProcessedFile = filePath;
             // Debugging Step 5: Log the last processed file
             console.log(`Last processed file: ${lastProcessedFile}`);
