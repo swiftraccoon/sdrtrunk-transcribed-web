@@ -80,13 +80,13 @@ const checkTranscriptions = async () => {
         }
 
         for (const fileName of files) {
-            const match = fileName.match(/^(\\d{8}_\\d{6})/);
+            const match = fileName.match(/^(\d{8}_\d{6})/);
             console.log(`Processing file ${fileName}`);
             console.log(`match: ${match}`);
             if (!match) continue;
         
             const timestamp = match[1];
-            const fileDate = new Date(timestamp.replace(/(\\d{4})(\\d{2})(\\d{2})_(\\d{2})(\\d{2})(\\d{2})/, '$1-$2-$3T$4:$5:$6'));
+            const fileDate = new Date(timestamp.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
         
             // Skip files older than the server boot time and break the loop
             if (fileDate <= serverBootTime) {
