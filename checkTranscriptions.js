@@ -128,4 +128,4 @@ const checkTranscriptions = async () => {
     }
 };
 
-module.exports = { checkTranscriptions, processedFiles };
+module.exports = checkTranscriptions;
