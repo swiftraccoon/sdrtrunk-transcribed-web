@@ -5,7 +5,6 @@ const sendEmail = require('./email');
 const db = require('./database');
 const myEmitter = require('./events');
 
-let lastProcessedFile = null;
 let lastProcessedTimestamp = "00000000_000000";
 let subscriptions = [];
 
@@ -39,7 +38,10 @@ const readDirRecursive = async (dir) => {
         }
       })
     );
-    return Array.prototype.concat(...files);
+    console.log(`files: ${files}`);  // Debugging line
+    //console.log(`files.filter(Boolean): ${files.filter(Boolean)}`);  // Debugging line
+    //console.log(`Array.prototype.concat(...files.filter(Boolean)): ${Array.prototype.concat(...files.filter(Boolean))}`);  // Debugging line
+    return Array.prototype.concat(...files.filter(Boolean));
   };
 
 const shouldProcessFile = (fileName, mostRecentDate) => {
@@ -58,7 +60,7 @@ const processFile = async (filePath, fileName) => {
     try {
         transcription = JSON.parse(content);
     } catch (e) {
-        console.error(`Invalid JSON in file ${fileName}`);
+        console.error(`${e} for ${fileName}`);
         return;
     }
 

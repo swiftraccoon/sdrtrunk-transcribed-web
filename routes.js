@@ -11,12 +11,6 @@ const { generateConfirmationId, getQueryParams, getDefaultDateTime, processDirec
 const myEmitter = require('./events');
 const config = require('./config');
 const WEB_URL = config.WEB_URL;
-const {
-    generateAttestationOptions,
-    verifyAttestationResponse,
-    generateAssertionOptions,
-    verifyAssertionResponse
-} = require('@simplewebauthn/server');
 const { requireAuth } = require('./authMiddleware');
 
 // Add this middleware near the top, after router is initialized
@@ -28,94 +22,6 @@ const { requireAuth } = require('./authMiddleware');
 //     next();
 // });
 
-// Start WebAuthn registration
-router.get('/webauthn/start-register', async (req, res) => {
-    // Define the relying party (your application)
-    const rp = {
-        name: config.WEBAUTHN_RP_NAME,
-        id: config.WEBAUTHN_RP_ID // This should be the domain where your app is hosted
-    };
-
-    const userId = generateRandomUserId();
-
-    // Define the user
-    const user = {
-        id: userId,
-        name: userId,
-        displayName: 'YubiKey User'
-    };
-
-    // Generate attestation options
-    const options = generateAttestationOptions({
-        rp,
-        user,
-        attestationType: 'direct', // or 'indirect'
-        authenticatorSelection: {
-            authenticatorAttachment: 'platform', // or 'cross-platform'
-            requireResidentKey: false,
-            userVerification: 'preferred' // or 'required' or 'discouraged'
-        },
-        timeout: 60000 // 1 minute
-    });
-
-    // Save the options in session
-    req.session.options = options;
-
-    // Send the options to the client
-    res.json(options);
-});
-
-// Finish WebAuthn registration
-router.post('/webauthn/finish-register', async (req, res) => {
-    const { id, rawId, response } = req.body;
-    const expectedOptions = req.session.options;
-
-    const verification = verifyAttestationResponse({
-        credential: { id, rawId, response },
-        expectedOptions,
-    });
-
-    if (verification.verified) {
-        const userId = req.session.userId;  // Assume you have the user's ID in session
-        await db.run('INSERT INTO webauthn_credentials (userId, credentialId, publicKey) VALUES (?, ?, ?)', [userId, id, verification.authenticatorInfo.publicKey]);
-    }
-});
-
-// Start WebAuthn authentication
-router.get('/webauthn/start-login', async (req, res) => {
-    const userId = req.session.userId;  // Assume you have the user's ID in session
-    const userCredentials = await db.all('SELECT * FROM webauthn_credentials WHERE userId = ?', [userId]);
-
-    const options = generateAssertionOptions({
-        allowCredentials: userCredentials.map(cred => ({
-            id: cred.credentialId,
-            type: 'public-key',
-            transports: ['usb', 'ble', 'nfc', 'internal'],
-        })),
-    });
-    req.session.options = options;
-    res.json(options);
-});
-
-
-// Finish WebAuthn authentication
-router.post('/webauthn/finish-login', async (req, res) => {
-    const { id, rawId, response } = req.body;
-    const expectedOptions = req.session.options;
-
-    const verification = verifyAssertionResponse({
-        credential: { id, rawId, response },
-        expectedOptions,
-    });
-
-    if (verification.verified) {
-        // User is authenticated
-        req.session.isAuthenticated = true;
-        res.redirect('/');
-    } else {
-        res.status(401).send('Authentication failed');
-    }
-});
 
 // Add a new POST route for login
 router.post('/login', async (req, res) => {
