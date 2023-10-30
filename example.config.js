@@ -33,8 +33,8 @@ const config = {
           "": "No Filter",
       },
       broadcastifyLinks: `
-          <a href="https://www.broadcastify.com/calls/tg/7118/41001">41001:RuCoEMS</a> <br />
-          <a href="https://www.broadcastify.com/calls/tg/7118/41002">41002:RuCoFD</a> <br />`
+          <a href="https://www.broadcastify.com/calls/tg/7118/41001">41001:EMS</a> <br />
+          <a href="https://www.broadcastify.com/calls/tg/7118/41002">41002:FD</a> <br />`
   };
   
   module.exports = config;
