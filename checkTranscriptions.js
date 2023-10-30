@@ -57,6 +57,7 @@ const processFile = async (filePath, fileName) => {
     let transcription;
     try {
         transcription = JSON.parse(content);
+        console.log(`transcription: ${transcription}`)
     } catch (e) {
         console.error(`${e} for ${fileName}`);
         return;
@@ -64,6 +65,7 @@ const processFile = async (filePath, fileName) => {
 
     for (const sub of subscriptions) {
         const regex = new RegExp(sub.regex, 'i');
+        console.log(`regex: ${regex}`)
         if (regex.test(transcription.text)) {
             await sendEmail(sub.email, `${regex}`, `${fileName} \n ${transcription.text} \n ${config.WEB_URL}/search?q=${regex}`);
         }
@@ -82,7 +84,7 @@ const checkTranscriptions = async () => {
         for (const file of filePaths) {
             const fileName = path.basename(file);
             const match = fileName.match(/^(\d{8}_\d{6})/);
-            console.log(`Processing file ${fileName}`);
+            console.log(`Current file ${fileName}`);
             console.log(`match: ${match}`);
             if (!match) continue;
         
@@ -101,6 +103,7 @@ const checkTranscriptions = async () => {
             if (timestamp <= lastProcessedTimestamp) continue;
         
             if (shouldProcessFile(fileName)) {
+                console.log(`processFile ${fileName}`);
                 await processFile(file, fileName);
                 lastProcessedTimestamp = timestamp;  // Update here
             }
