@@ -7,6 +7,7 @@ const myEmitter = require('./events');
 
 let lastProcessedTimestamp = "00000000_000000";
 let subscriptions = [];
+const processedFiles = new Set();
 let lastProcessedFileName = "";
 
 const serverBootTime = new Date();
@@ -87,14 +88,18 @@ const checkTranscriptions = async () => {
 
         for (const file of filePaths) {
             const fileName = path.basename(file);
+            if (processedFiles.has(fileName)) {
+                console.log(`Skipping already processed file: ${fileName}`);
+                continue;
+            }
             const match = fileName.match(/^(\d{8}_\d{6})/);
             console.log(`Current file ${fileName}`);
             console.log(`match: ${match}`);
             if (!match) continue;
-        
+
             const timestamp = match[1];
             const fileDate = new Date(timestamp.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
-        
+
             // Skip files older than the server boot time and break the loop
             if (fileDate <= serverBootTime) {
                 console.log(`Skipping file ${fileName}\nfileDate: ${fileDate}\nserverBootTime: ${serverBootTime}}`);
@@ -103,7 +108,7 @@ const checkTranscriptions = async () => {
                 console.log(`fD<=sBT After: ${lastProcessedTimestamp}`)
                 break;
             }
-        
+
             if (timestamp <= lastProcessedTimestamp) continue;
             console.log(`lastProcessedFileName ${lastProcessedFileName}`)
             if (shouldProcessFile(fileName) && fileName !== lastProcessedFileName) {
@@ -112,6 +117,7 @@ const checkTranscriptions = async () => {
                     await processFile(file, fileName);
                     lastProcessedTimestamp = timestamp;
                     lastProcessedFileName = fileName;
+                    processedFiles.add(fileName);
                 } catch (error) {
                     console.error(`Error sPF->processFile ${fileName}:`, error);
                 }
@@ -122,4 +128,4 @@ const checkTranscriptions = async () => {
     }
 };
 
-module.exports = checkTranscriptions;
+module.exports = { checkTranscriptions, processedFiles };
