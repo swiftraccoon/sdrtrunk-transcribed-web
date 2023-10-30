@@ -198,6 +198,16 @@ form > label {
     transition: background-color 0.3s ease;
 }
 
+.filterButton {
+    background-color: var(--true-black);
+    border-radius: 5px;
+    border: 1px solid #303030;
+    color: var(--text-gray);
+    cursor: pointer;
+    padding: 1px 5px;
+    transition: background-color 0.3s ease;
+}
+
 .subscription-box input[type="text"] {
     background-color: var(--hover-gray);
     border: 1px solid #003b46;
@@ -227,7 +237,7 @@ form > label {
     border-radius: 5px;
     color: var(--text-gray);
     cursor: pointer;
-    padding: 10px;
+    padding: 5px;
     transition: background-color 0.3s ease;
     text-align: left;
 }

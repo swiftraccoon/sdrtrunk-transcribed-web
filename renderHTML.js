@@ -130,7 +130,10 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                                             </select>
                                         </div>
                                         <div class="filter_button_separator"></div>
-                                        <center><button type="submit" class="filterButton">Filter</button></center>
+                                        <center>
+                                            <button type="submit" class="filterButton">Filter</button>
+                                            <button type="button" class="filterButton" onclick="clearFiltersAndRefresh()">No Filter</button>
+                                        </center>
                                     </div>
                                 </div>
                             </div>
@@ -165,6 +168,14 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                 </div>
             <!-- Javaskriptz -->
             <script>
+                function clearFiltersAndRefresh() {
+                    let url = new URL(window.location.href);
+                    let params = new URLSearchParams(url.search);
+                    params.delete('talkgroupIds');
+                    params.delete('radioIds');
+                    url.search = params.toString();
+                    window.location.href = url.toString();
+                }
                 var coll = document.getElementsByClassName("collapsible");
                 for (var i = 0; i < coll.length; i++) {
                     coll[i].addEventListener("click", function() {
