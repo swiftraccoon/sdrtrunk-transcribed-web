@@ -63,7 +63,7 @@ router.post('/subscribe', requireAuth, async (req, res) => {
         console.log("DB Result:", dbResult);
 
         const confirmationUrl = `${WEB_URL}/verify/${confirmationId}`;
-        await sendEmail(email, 'Confirm Subscription', `regex: ${regex}\n\nClick this link to confirm: ${confirmationUrl}`);
+        await sendEmailWithRateLimit(email, 'Confirm Subscription', `regex: ${regex}\n\nClick this link to confirm: ${confirmationUrl}`);
         res.status(200).json({ status: 'Success! Check your Inbox (or Spam) for a confirmation link.' });  // Fixed response
     } catch (error) {
         console.error("Error in /subscribe: ", error);
