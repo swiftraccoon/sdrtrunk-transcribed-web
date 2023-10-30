@@ -38,7 +38,7 @@ const readDirRecursive = async (dir) => {
         }
     }));
     const filteredFiles = Array.prototype.concat(...files).filter(Boolean);
-    filteredFiles.sort((a, b) => b.localeCompare(a));
+    filteredFiles.sort((a, b) => path.basename(b).localeCompare(path.basename(a)));
     return filteredFiles.slice(0, 5);
 };
 
