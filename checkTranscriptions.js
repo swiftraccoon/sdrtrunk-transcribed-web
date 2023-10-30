@@ -61,7 +61,8 @@ const processFile = async (filePath, fileName) => {
     let transcription;
     try {
         transcription = JSON.parse(content);
-        console.log(`transcription: ${transcription.text}`)
+        const allText = Object.values(transcription).join(', ');
+        console.log(`transcription: ${allText}`)
     } catch (e) {
         console.error(`${e} for ${fileName}`);
         return;
@@ -70,7 +71,7 @@ const processFile = async (filePath, fileName) => {
     for (const sub of subscriptions) {
         const regex = new RegExp(sub.regex, 'i');
         console.log(`regex: ${regex}`)
-        const allText = Object.values(transcription).join(', ');
+        
         if (regex.test(allText)) {
             await sendEmailWithRateLimit(sub.email, `${sub.regex}`, `${fileName}\n${allText}\n${config.WEB_URL}/search?q=${sub.regex}`);
         }
