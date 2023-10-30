@@ -25,6 +25,8 @@ const fetchActiveSubscriptions = () => {
     });
 };
 
+fetchActiveSubscriptions();
+console.log(`subscriptions: ${JSON.stringify(subscriptions)}`);
 myEmitter.on('emailVerified', fetchActiveSubscriptions);
 
 const readDirRecursive = async (dir) => {
@@ -57,7 +59,7 @@ const processFile = async (filePath, fileName) => {
     let transcription;
     try {
         transcription = JSON.parse(content);
-        console.log(`transcription: ${transcription}`)
+        console.log(`transcription: ${transcription.text}`)
     } catch (e) {
         console.error(`${e} for ${fileName}`);
         return;
@@ -95,17 +97,22 @@ const checkTranscriptions = async () => {
             if (fileDate <= serverBootTime) {
                 console.log(`Skipping file ${fileName}\nfileDate: ${fileDate}\nserverBootTime: ${serverBootTime}}`);
                 console.log(`Before: ${lastProcessedTimestamp}`)
-                lastProcessedTimestamp = timestamp;  // Update here
+                lastProcessedTimestamp = timestamp;
                 console.log(`After: ${lastProcessedTimestamp}`)
                 break;
             }
         
             if (timestamp <= lastProcessedTimestamp) continue;
         
-            if (shouldProcessFile(fileName)) {
+            if (shouldProcessFile(fileName) && fileName !== lastProcessedFileName) {
                 console.log(`processFile ${fileName}`);
-                await processFile(file, fileName);
-                lastProcessedTimestamp = timestamp;  // Update here
+                try {
+                    await processFile(file, fileName);
+                    lastProcessedTimestamp = timestamp;
+                    lastProcessedFileName = fileName;
+                } catch (error) {
+                    console.error(`Error processing file ${fileName}:`, error);
+                }
             }
         }
     } catch (error) {
