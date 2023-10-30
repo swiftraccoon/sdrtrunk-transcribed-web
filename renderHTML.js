@@ -98,7 +98,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                                             <input type="time" name="endDate_time" value="${defaultEndTime}">
                                         </div>
                                         <div class="filter_button_separator"></div>
-                                        <button type="button" class="filterButton" onclick="setDefaultDatesAndTimes()">Default</button>
+                                        <button type="button" class="filterButton" onclick="setDefaultDatesAndTimes()">Default Date/Time</button>
                                     </div>
                                 </div>
                             </div>
@@ -133,8 +133,8 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                                         </div>
                                         <div class="filter_button_separator"></div>
                                         <center>
-                                            <button type="submit" class="filterButton">Filter</button>
-                                            <button type="button" class="filterButton" onclick="clearFiltersAndRefresh()">No Filter</button>
+                                            <button type="submit" class="filterButton">Apply Filters</button>
+                                            <button type="button" class="filterButton" onclick="clearFiltersAndRefresh()">Reset ID Filters</button>
                                         </center>
                                     </div>
                                 </div>
