@@ -8,7 +8,7 @@ const config = {
     EMAIL_PASS: 'pass', // password for SMTP
     maxHourlyEmails: 40, // max number of emails per hour
     maxDailyEmails: 130, // max number of emails per day
-    WEB_URL: 'http://localhost:3000', // base URL of the web server
+    WEB_URL: 'https://localhost:3000', // base URL of the web server
     users: [
         { username: 'user1', password: 'pass1' },
         { username: 'user2', password: 'pass2' },
