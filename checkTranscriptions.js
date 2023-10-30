@@ -34,7 +34,7 @@ const readDirRecursive = async (dir) => {
         if (dirent.isDirectory()) {
             return readDirRecursive(res);
         } else {
-            return res.endsWith('.txt') ? path.basename(res) : null;
+            return res.endsWith('.txt') ? res : null;
         }
     }));
     const filteredFiles = Array.prototype.concat(...files).filter(Boolean);
@@ -72,14 +72,15 @@ const processFile = async (filePath, fileName) => {
 
 const checkTranscriptions = async () => {
     try {
-        const files = await readDirRecursive('./public/transcriptions');
-        console.log(`Files to process: ${files}`);
-        if (files.length === 0) {
+        const filePaths = await readDirRecursive('./public/transcriptions');
+        console.log(`Files to process: ${filePaths}`);
+        if (filePaths.length === 0) {
             console.log("No new files to process.");
             return;
         }
 
-        for (const fileName of files) {
+        for (const file of filePaths) {
+            const fileName = path.basename(file);
             const match = fileName.match(/^(\d{8}_\d{6})/);
             console.log(`Processing file ${fileName}`);
             console.log(`match: ${match}`);
@@ -100,7 +101,7 @@ const checkTranscriptions = async () => {
             if (timestamp <= lastProcessedTimestamp) continue;
         
             if (shouldProcessFile(fileName)) {
-                await processFile(filePath, fileName);
+                await processFile(file, fileName);
                 lastProcessedTimestamp = timestamp;  // Update here
             }
         }
