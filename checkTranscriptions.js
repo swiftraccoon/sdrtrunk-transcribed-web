@@ -1,7 +1,7 @@
 const config = require('./config');
 const fs = require('fs').promises;
 const path = require('path');
-const sendEmail = require('./email');
+const sendEmailWithRateLimit = require('./email');
 const db = require('./database');
 const myEmitter = require('./events');
 
@@ -72,7 +72,7 @@ const processFile = async (filePath, fileName) => {
         console.log(`regex: ${regex}`)
         const allText = Object.values(transcription).join(', ');
         if (regex.test(allText)) {
-            await sendEmailWithRateLimit(sub.email, `${regex}`, `${fileName} \n ${transcription.text} \n ${config.WEB_URL}/search?q=${regex}`);
+            await sendEmailWithRateLimit(sub.email, `${sub.regex}`, `${fileName} \n ${transcription.text} \n ${config.WEB_URL}/search?q=${sub.regex}`);
         }
     }
 };

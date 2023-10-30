@@ -4,6 +4,8 @@ const EMAIL_HOST = config.EMAIL_HOST;
 const EMAIL_PORT = config.EMAIL_PORT;
 const EMAIL_USER = config.EMAIL_USER;
 const EMAIL_PASS = config.EMAIL_PASS;
+const maxHourlyEmails = config.maxHourlyEmails;
+const maxDailyEmails = config.maxDailyEmails;
 
 let hourlyEmailCount = 0;
 let dailyEmailCount = 0;
@@ -53,7 +55,7 @@ const sendEmailWithRateLimit = async (email, subject, body) => {
   }
 
   // Check rate limits
-  if (hourlyEmailCount >= 50 || dailyEmailCount >= 150) {
+  if (hourlyEmailCount >= config.maxHourlyEmails || dailyEmailCount >= config.maxDailyEmails) {
     console.log("Rate limit reached. Email not sent.");
     return;
   }
