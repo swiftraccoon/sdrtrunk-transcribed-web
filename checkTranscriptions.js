@@ -69,7 +69,8 @@ const processFile = async (filePath, fileName) => {
     for (const sub of subscriptions) {
         const regex = new RegExp(sub.regex, 'i');
         console.log(`regex: ${regex}`)
-        if (regex.test(transcription.text)) {
+        const allText = Object.values(transcription).join(', ');
+        if (regex.test(allText)) {
             await sendEmail(sub.email, `${regex}`, `${fileName} \n ${transcription.text} \n ${config.WEB_URL}/search?q=${regex}`);
         }
     }
@@ -97,22 +98,22 @@ const checkTranscriptions = async () => {
             // Skip files older than the server boot time and break the loop
             if (fileDate <= serverBootTime) {
                 console.log(`Skipping file ${fileName}\nfileDate: ${fileDate}\nserverBootTime: ${serverBootTime}}`);
-                console.log(`Before: ${lastProcessedTimestamp}`)
+                console.log(`fD<=sBT Before: ${lastProcessedTimestamp}`)
                 lastProcessedTimestamp = timestamp;
-                console.log(`After: ${lastProcessedTimestamp}`)
+                console.log(`fD<=sBT After: ${lastProcessedTimestamp}`)
                 break;
             }
         
             if (timestamp <= lastProcessedTimestamp) continue;
         
             if (shouldProcessFile(fileName) && fileName !== lastProcessedFileName) {
-                console.log(`processFile ${fileName}`);
+                console.log(`Sending to processFile ${fileName}`);
                 try {
                     await processFile(file, fileName);
                     lastProcessedTimestamp = timestamp;
                     lastProcessedFileName = fileName;
                 } catch (error) {
-                    console.error(`Error processing file ${fileName}:`, error);
+                    console.error(`Error sPF->processFile ${fileName}:`, error);
                 }
             }
         }
