@@ -29,20 +29,18 @@ myEmitter.on('emailVerified', fetchActiveSubscriptions);
 
 const readDirRecursive = async (dir) => {
     const dirents = await fs.readdir(dir, { withFileTypes: true });
-    const files = await Promise.all(
-      dirents.map((dirent) => {
-        //console.log(`dirent.name: ${dirent.name}`);  // Debugging line
-        if (dirent.name) {  // Check for undefined
-          const res = path.resolve(dir, dirent.name);
-          return dirent.isDirectory() ? readDirRecursive(res) : res;
+    const files = await Promise.all(dirents.map(async (dirent) => {
+        const res = path.resolve(dir, dirent.name);
+        if (dirent.isDirectory()) {
+            return readDirRecursive(res);
+        } else {
+            return res.endsWith('.txt') ? path.basename(res) : null;
         }
-      })
-    );
-    //console.log(`files: ${files}`);  // Debugging line
-    //console.log(`files.filter(Boolean): ${files.filter(Boolean)}`);  // Debugging line
-    //console.log(`Array.prototype.concat(...files.filter(Boolean)): ${Array.prototype.concat(...files.filter(Boolean))}`);  // Debugging line
-    return Array.prototype.concat(...files.filter(Boolean));
-  };
+    }));
+    const filteredFiles = Array.prototype.concat(...files).filter(Boolean);
+    filteredFiles.sort((a, b) => b.localeCompare(a));
+    return filteredFiles.slice(0, 5);
+};
 
 const shouldProcessFile = (fileName, mostRecentDate) => {
     const match = fileName.match(/^(\d{8}_\d{6})/);
@@ -75,6 +73,7 @@ const processFile = async (filePath, fileName) => {
 const checkTranscriptions = async () => {
     try {
         const files = await readDirRecursive('./public/transcriptions');
+        console.log("Files returned by readDirRecursive:", files);
         files.sort();
         const mostRecentTimestamp = path.basename(files[0]).match(/^(\d{8}_\d{6})/)[1];
         const mostRecentDate = new Date(mostRecentTimestamp.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
@@ -82,6 +81,7 @@ const checkTranscriptions = async () => {
         // await fetchActiveSubscriptions();
 
         for (const filePath of files) {
+            if (!filePath) continue;
             const fileName = path.basename(filePath);
             const match = fileName.match(/^(\d{8}_\d{6})/);
             if (!match) continue;

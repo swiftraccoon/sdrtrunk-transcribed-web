@@ -55,5 +55,5 @@ const httpsServer = https.createServer(credentials, app);
     httpsServer.listen(PORT, () => {
         console.log(`Server running on https://localhost:${PORT}`);
     });
-    setInterval(checkTranscriptions, 60 * 1000); // Check every minute
+    setInterval(checkTranscriptions, 10 * 1000); // Check every minute
 })();
