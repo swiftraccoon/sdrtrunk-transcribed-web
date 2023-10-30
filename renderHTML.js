@@ -97,6 +97,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                                             <input type="date" name="endDate_date" value="${defaultEndDate}">
                                             <input type="time" name="endDate_time" value="${defaultEndTime}">
                                         </div>
+                                        <button type="button" class="filterButton" onclick="setDefaultDatesAndTimes()">Default</button>
                                     </div>
                                 </div>
                             </div>
@@ -168,6 +169,28 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                 </div>
             <!-- Javaskriptz -->
             <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Get URL parameters
+                    const urlParams = new URLSearchParams(window.location.search);
+                
+                    // Check if filters are set, otherwise use default values
+                    const startDate = urlParams.get('startDate_date') || '${defaultStartDate}';
+                    const startTime = urlParams.get('startDate_time') || '${defaultStartTime}';
+                    const endDate = urlParams.get('endDate_date') || '${defaultEndDate}';
+                    const endTime = urlParams.get('endDate_time') || '${defaultEndTime}';
+                
+                    // Set the input fields
+                    document.getElementsByName('startDate_date')[0].value = startDate;
+                    document.getElementsByName('startDate_time')[0].value = startTime;
+                    document.getElementsByName('endDate_date')[0].value = endDate;
+                    document.getElementsByName('endDate_time')[0].value = endTime;
+                });
+                function setDefaultDatesAndTimes() {
+                    document.getElementsByName('startDate_date')[0].value = '${defaultStartDate}';
+                    document.getElementsByName('startDate_time')[0].value = '${defaultStartTime}';
+                    document.getElementsByName('endDate_date')[0].value = '${defaultEndDate}';
+                    document.getElementsByName('endDate_time')[0].value = '${defaultEndTime}';
+                }
                 function clearFiltersAndRefresh() {
                     let url = new URL(window.location.href);
                     let params = new URLSearchParams(url.search);
