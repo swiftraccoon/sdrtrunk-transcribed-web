@@ -105,7 +105,7 @@ const checkTranscriptions = async () => {
             }
         
             if (timestamp <= lastProcessedTimestamp) continue;
-        
+            console.log(`lastProcessedFileName ${lastProcessedFileName}`)
             if (shouldProcessFile(fileName) && fileName !== lastProcessedFileName) {
                 console.log(`Sending to processFile ${fileName}`);
                 try {
