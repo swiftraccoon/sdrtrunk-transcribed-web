@@ -6,6 +6,8 @@ const config = {
     EMAIL_PORT: 587, // port for SMTP
     EMAIL_USER: 'user', // username for SMTP
     EMAIL_PASS: 'pass', // password for SMTP
+    EMAIL_SUBJ_PREFIX: 'Node 1234: ', // OPTIONAL: prefix for email subjects
+    EMAIL_SUBJ_SUFFIX: ' regex match!', // OPTIONAL: suffix for email subjects
     maxHourlyEmails: 40, // max number of emails per hour
     maxDailyEmails: 130, // max number of emails per day
     WEB_URL: 'https://localhost:3000', // base URL of the web server

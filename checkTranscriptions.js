@@ -73,7 +73,7 @@ const processFile = async (filePath, fileName) => {
         console.log(`regex: ${regex}`)
         const allText = Object.values(transcription).join(', ');
         if (regex.test(allText)) {
-            await sendEmailWithRateLimit(sub.email, `${sub.regex}`, `${fileName}\n${allText}\n${config.WEB_URL}/search?q=${sub.regex}`);
+            await sendEmailWithRateLimit(sub.email, `${config.EMAIL_SUBJ_PREFIX}${sub.regex}${config.EMAIL_SUBJ_SUFFIX}`, `${fileName}\n${allText}\n${config.WEB_URL}/search?q=${sub.regex}`);
         }
     }
 };
