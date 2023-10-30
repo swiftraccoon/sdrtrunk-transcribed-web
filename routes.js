@@ -61,8 +61,8 @@ router.post('/subscribe', requireAuth, async (req, res) => {
         console.log("DB Result:", dbResult);
 
         const confirmationUrl = `${WEB_URL}/verify/${confirmationId}`;
-        await sendEmailWithRateLimit(email, 'Confirm Subscription', `regex: ${regex}\n\nClick this link to confirm: ${confirmationUrl}`);
-        res.status(200).json({ status: 'Success! Check your Inbox (or Spam) for a confirmation link.' });  // Fixed response
+        await sendEmailWithRateLimit(email, `${config.EMAIL_SUB_CONF_SUBJ}`, `regex: ${regex}\n\nClick this link to confirm: ${confirmationUrl}`);
+        res.status(200).json({ status: `${config.SUB_CONF_RESP}` });
     } catch (error) {
         console.error("Error in /subscribe: ", error);
         res.status(500).send('Internal Server Error');
@@ -87,7 +87,7 @@ router.post('/unsubscribe', requireAuth, async (req, res) => {
         }
 
         console.log("DB Result:", dbResult);
-        res.status(200).json({ status: 'Successfully unsubscribed!' });
+        res.status(200).json({ status: `${config.UNSUB_CONF_RESP}` });
         myEmitter.emit('emailVerified'); // Refresh subscriptions
     } catch (error) {
         console.error("Error in /unsubscribe: ", error);
@@ -104,7 +104,7 @@ router.get('/verify/:id', requireAuth, (req, res) => {
         if (this.changes === 0) {
             return res.send('Invalid confirmation ID!');
         }
-        res.send('Email verified. You will now receive email notifications when a transcription matches your subscription.');
+        res.send(`${config.VERIFIED_RESP}`);
         myEmitter.emit('emailVerified');
     });
 });

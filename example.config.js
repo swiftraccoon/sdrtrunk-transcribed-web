@@ -8,6 +8,10 @@ const config = {
     EMAIL_PASS: 'pass', // password for SMTP
     EMAIL_SUBJ_PREFIX: 'Node 1234: ', // OPTIONAL: prefix of regex for email subjects
     EMAIL_SUBJ_SUFFIX: ' regex match!', // OPTIONAL: suffix of regex for email subjects
+    EMAIL_SUB_CONF_SUBJ: 'Confirm Subscription', // Subject of the confirmation e-mail we send for new subscriptions
+    SUB_CONF_RESP: 'Success! Check your Inbox (or Spam) for a confirmation link.', // Response to send to the browser after they subscribe
+    UNSUB_CONF_RESP: 'Success! You have been unsubscribed.', // Response to send to the browser after they unsubscribe
+    VERIFIED_RESP: 'Email verified. You will now receive email notifications when a transcription matches your subscription.', // Response to send to the browser after they verify their e-mail
     maxHourlyEmails: 40, // max number of emails per hour
     maxDailyEmails: 130, // max number of emails per day
     WEB_URL: 'https://localhost:3000', // base URL of the web server
