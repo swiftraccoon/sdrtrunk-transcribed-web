@@ -47,4 +47,4 @@ It's themed to be used on a mobile device or to take up very little width and be
 Feel free to open issues and pull requests.
 
 ## Preview
-![Screenshot](Screenshot.png)
+![Screenshot](Screenshot.png) ![ScreenshotdG.png](ScreenshotdG.png)
