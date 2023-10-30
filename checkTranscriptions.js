@@ -7,6 +7,7 @@ const myEmitter = require('./events');
 
 let lastProcessedTimestamp = "00000000_000000";
 let subscriptions = [];
+let lastProcessedFileName = "";
 
 const serverBootTime = new Date();
 console.log(`Server boot time: ${serverBootTime}`);
