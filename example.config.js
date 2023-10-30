@@ -9,8 +9,10 @@ const config = {
     maxHourlyEmails: 40, // max number of emails per hour
     maxDailyEmails: 130, // max number of emails per day
     WEB_URL: 'http://localhost:3000', // base URL of the web server
-    WEB_user0: 'user', // username for basic auth
-    WEB_pass0: 'pass', // password for basic auth
+    users: [
+        { username: 'user1', password: 'pass1' },
+        { username: 'user2', password: 'pass2' },
+    ],
     sessionSecretKey: 'secret', // secret key for session
     WEB_nodeID: 'nodeID', // nodeID listed in website title
     WEB_nodeName: 'nodeName', // nodeName listed in website title

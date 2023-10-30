@@ -25,23 +25,21 @@ const { requireAuth } = require('./authMiddleware');
 
 // Add a new POST route for login
 router.post('/login', async (req, res) => {
-    // console.log("Received POST /login");
-    // console.log("Request Body:", req.body);
     const { username, password } = req.body;
-    // console.log(`Received username: ${username}, password: ${password}`);  // Debugging line 1
 
-    if (username === config.WEB_user0 && password === config.WEB_pass0) {
+    const isValidUser = config.users.some(
+        user => user.username === username && user.password === password
+    );
+
+    if (isValidUser) {
         console.log("Authentication successful");
         req.session.isAuthenticated = true;
-        // console.log("Session after setting isAuthenticated:", req.session);  // Debugging line 2
 
         // Save the session
         req.session.save((err) => {
-            // console.log("Session before saving:", req.session);  // Debugging line 3
             if (err) {
                 console.error("Error saving session:", err);
             }
-            // console.log("Session after saving:", req.session);  // Debugging line 3
             res.redirect('/');
         });
     } else {
