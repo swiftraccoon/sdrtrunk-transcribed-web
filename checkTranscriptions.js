@@ -42,14 +42,14 @@ const readDirRecursive = async (dir) => {
     return filteredFiles.slice(0, 5);
 };
 
-const shouldProcessFile = (fileName, mostRecentDate) => {
+const shouldProcessFile = (fileName) => {
     const match = fileName.match(/^(\d{8}_\d{6})/);
     if (!match) return false;
 
     const timestampStr = match[1];
     const fileDate = new Date(timestampStr.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
 
-    return fileDate > mostRecentDate && fileDate > serverBootTime;
+    return fileDate > serverBootTime;
 };
 
 const processFile = async (filePath, fileName) => {
@@ -99,7 +99,7 @@ const checkTranscriptions = async () => {
         
             if (timestamp <= lastProcessedTimestamp) continue;
         
-            if (shouldProcessFile(fileName, mostRecentDate)) {
+            if (shouldProcessFile(fileName)) {
                 await processFile(filePath, fileName);
                 lastProcessedTimestamp = timestamp;  // Update here
             }
