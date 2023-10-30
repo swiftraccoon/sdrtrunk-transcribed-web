@@ -172,7 +172,7 @@ h3 {
 /* Miscellaneous Styles */
 .separator {
     background: linear-gradient(to right, transparent, #555555, transparent);
-    height: 4px;
+    height: 2px;
     margin: 7px 0;
 }
 

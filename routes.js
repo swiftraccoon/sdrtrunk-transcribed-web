@@ -73,22 +73,24 @@ router.post('/subscribe', requireAuth, async (req, res) => {
 router.post('/unsubscribe', requireAuth, async (req, res) => {
     try {
         const { regex, email } = req.body;
-        const ip = req.ip;
-        const browser = req.headers['user-agent'];
-        const confirmationId = generateConfirmationId();
 
         const dbResult = await new Promise((resolve, reject) => {
-            db.run(`INSERT INTO subscriptions (regex, email, ip, browser, confirmationID) VALUES (?, ?, ?, ?, ?)`,
-                [regex, email, ip, browser, confirmationId], function (err) {
+            db.run(`UPDATE subscriptions SET enabled = FALSE WHERE email = ? AND regex = ?`,
+                [email, regex], function (err) {
                     if (err) return reject(err);
                     resolve(this);
                 });
         });
+
+        if (dbResult.changes === 0) {
+            return res.status(400).json({ status: 'No matching subscription found.' });
+        }
+
         console.log("DB Result:", dbResult);
-        res.status(200).json({ status: 'Successfully unsubscribed.' });
+        res.status(200).json({ status: 'Successfully unsubscribed!' });
         myEmitter.emit('emailVerified'); // Refresh subscriptions
     } catch (error) {
-        console.error("Error in /subscribe: ", error);
+        console.error("Error in /unsubscribe: ", error);
         res.status(500).send('Internal Server Error');
     }
 });
