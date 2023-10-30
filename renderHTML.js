@@ -45,7 +45,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                 </form><br />
                 <form action="/" method="get">
                 <!-- Theme selector -->
-                <div style="display: inline-block; vertical-align: top; border-right: 0.25px solid #444; padding-right: 0.25px; margin-right: 0.25px;">
+                <div style="display: inline-block; vertical-align: top; border-right: 1px solid #444; padding-right: 1px; margin-right: 1px; padding-left: 1px; margin-left: 1px;">
                     <label for="themeSelector"></label>
                     <select name="theme">
                     <option value="gray" ${theme === 'gray' ? 'selected' : ''}>Gray</option>
@@ -54,7 +54,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                     </select>
                 </div>
                 <!-- Special text -->
-                <div style="display: inline-block; vertical-align: top; border-right: 0.25px solid #444; padding-right: 0.25px; margin-right: 0.25px;">
+                <div style="display: inline-block; vertical-align: top; border-right: 1px solid #444; padding-right: 1px; margin-right: 1px; padding-left: 1px; margin-left: 1px;">
                     <input type="checkbox" id="specialTextToggle">
                 </div>
                 <!-- Auto-refresh -->
@@ -79,7 +79,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                         <form method="GET">
                             <!-- Date Selector -->
                             <div class="flex-container">
-                                <div style="display: inline-block; vertical-align: top; border-right: 0.25px solid #444; padding-right: 0.25px; margin-right: 0.25px;">
+                                <div style="display: inline-block; vertical-align: top; border-right: 1px solid #444; padding-right: 1px; margin-right: 1px; padding-left: 1px; margin-left: 1px;">
                                     <div class="flex-item">
                                         <div class="label-container">
                                             <label for="startDate">Start:</label>
