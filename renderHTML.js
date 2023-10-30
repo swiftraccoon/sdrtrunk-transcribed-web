@@ -97,6 +97,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                                             <input type="date" name="endDate_date" value="${defaultEndDate}">
                                             <input type="time" name="endDate_time" value="${defaultEndTime}">
                                         </div>
+                                        <div class="filter_button_separator"></div>
                                         <button type="button" class="filterButton" onclick="setDefaultDatesAndTimes()">Default</button>
                                     </div>
                                 </div>
