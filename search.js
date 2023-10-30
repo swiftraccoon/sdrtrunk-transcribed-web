@@ -79,8 +79,7 @@ const watchDirectories = () => {
   const watcher = chokidar.watch(path.join(PUBLIC_DIR, 'transcriptions'), {
     ignored: /(^|[\/\\])\../,
     persistent: true,
-    ignoreInitial: true,
-    depth: 0 // Only watch the immediate children of the root directory
+    ignoreInitial: true
   });
 
   watcher.on('addDir', async dirPath => {
@@ -96,9 +95,34 @@ const watchDirectories = () => {
     }
   });
 
-  watcher.on('change', async dirPath => {
-    await updateCacheForDirectory(dirPath);
+  watcher.on('change', async changedPath => {
+    const stats = await fs.promises.stat(changedPath);
+    
+    if (stats.isDirectory()) {
+      await updateCacheForDirectory(changedPath);
+    } else if (stats.isFile()) {
+      await updateCacheForFile(changedPath);
+    }
   });
+
+  watcher.on('add', async filePath => {
+    await updateCacheForFile(filePath);
+  });
+
+  watcher.on('unlink', filePath => {
+    delete cache[filePath];
+  });
+
+  const updateCacheForFile = async (filePath) => {
+    const dirName = path.dirname(filePath).split('/').pop();
+    const fileName = path.basename(filePath);
+    const content = await fs.promises.readFile(filePath, 'utf-8');
+    cache[filePath] = {
+      content: content,
+      dir: dirName,
+      file: fileName
+    };
+  };
 };
 
 // Initialize cache and set up file watchers
