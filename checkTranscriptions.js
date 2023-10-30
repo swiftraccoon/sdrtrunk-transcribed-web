@@ -73,25 +73,27 @@ const processFile = async (filePath, fileName) => {
 const checkTranscriptions = async () => {
     try {
         const files = await readDirRecursive('./public/transcriptions');
-        console.log("Files returned by readDirRecursive:", files);
-        files.sort();
-        const mostRecentTimestamp = path.basename(files[0]).match(/^(\d{8}_\d{6})/)[1];
-        const mostRecentDate = new Date(mostRecentTimestamp.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
+        console.log(`Files to process: ${files}`);
+        if (files.length === 0) {
+            console.log("No new files to process.");
+            return;
+        }
 
-        // await fetchActiveSubscriptions();
-
-        for (const filePath of files) {
-            if (!filePath) continue;
-            const fileName = path.basename(filePath);
-            const match = fileName.match(/^(\d{8}_\d{6})/);
+        for (const fileName of files) {
+            const match = fileName.match(/^(\\d{8}_\\d{6})/);
+            console.log(`Processing file ${fileName}`);
+            console.log(`match: ${match}`);
             if (!match) continue;
         
             const timestamp = match[1];
-            const fileDate = new Date(timestamp.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
+            const fileDate = new Date(timestamp.replace(/(\\d{4})(\\d{2})(\\d{2})_(\\d{2})(\\d{2})(\\d{2})/, '$1-$2-$3T$4:$5:$6'));
         
             // Skip files older than the server boot time and break the loop
             if (fileDate <= serverBootTime) {
                 console.log(`Skipping file ${fileName}\nfileDate: ${fileDate}\nserverBootTime: ${serverBootTime}}`);
+                console.log(`Before: ${lastProcessedTimestamp}`)
+                lastProcessedTimestamp = timestamp;  // Update here
+                console.log(`After: ${lastProcessedTimestamp}`)
                 break;
             }
         
@@ -99,8 +101,7 @@ const checkTranscriptions = async () => {
         
             if (shouldProcessFile(fileName, mostRecentDate)) {
                 await processFile(filePath, fileName);
-                lastProcessedTimestamp = timestamp;
-                lastProcessedFile = filePath;
+                lastProcessedTimestamp = timestamp;  // Update here
             }
         }
     } catch (error) {
