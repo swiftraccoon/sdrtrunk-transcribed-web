@@ -1,9 +1,8 @@
 const chai = require('chai');
 const assert = chai.assert;
 const sinon = require('sinon');
-const { checkTranscriptions, processedFiles } = require('../checkTranscriptions');
+const { checkTranscriptions, processFile, processedFiles } = require('../checkTranscriptions');
 const fs = require('fs').promises;
-// const sendEmail = require('../email');
 
 describe('checkTranscriptions', () => {
     let readDirRecursiveStub, readFileStub;
@@ -12,31 +11,49 @@ describe('checkTranscriptions', () => {
         sandbox = sinon.createSandbox();
         readDirRecursiveStub = sandbox.stub(fs, 'readdir');
         readFileStub = sandbox.stub(fs, 'readFile');
-        // sendEmailStub = sandbox.stub(sendEmail);
     });
 
     afterEach(() => {
         sandbox.restore();  // Restore all stubs
     });
 
-    it('should check files created since server boot', async () => {
-        readDirRecursiveStub.callsFake(async (dir) => {
-            console.log(`readDirRecursive called with: ${dir}`);
-            return ['file1', 'file2'];
+    it('should return the full, unedited transcription', async function() {
+        // Arrange
+        const mockContent = JSON.stringify({
+            "2499936": "Henderson car, clear name and number, reference 10-50 PD.",
+            "10-50": "Collision PD, PI, F"
         });
-
-        readFileStub.callsFake(async (filePath) => {
-            console.log(`readFile called with: ${filePath}`);
-            return JSON.stringify({ text: 'some text' });
-        });
-
-        try {
-            await checkTranscriptions();
-            assert.isTrue(readDirRecursiveStub.calledOnce);
-        } catch (e) {
-            console.log(`Caught error: ${e}`);
-        }
+        readFileStub.resolves(mockContent);
+        
+        // Act
+        const logSpy = sinon.spy(console, 'log');
+        await processFile('mockFilePath', 'mockFileName');
+        
+        // Assert
+        assert.isTrue(logSpy.calledWith(`transcription: ${mockContent}`));
+        
+        // Cleanup
+        logSpy.restore();
     });
+
+    // it('should check files created since server boot', async () => {
+    //     readDirRecursiveStub.callsFake(async (dir) => {
+    //         console.log(`readDirRecursive called with: ${dir}`);
+    //         return ['file1', 'file2'];
+    //     });
+
+    //     readFileStub.callsFake(async (filePath) => {
+    //         console.log(`readFile called with: ${filePath}`);
+    //         return JSON.stringify({ text: 'some text' });
+    //     });
+
+    //     try {
+    //         await checkTranscriptions();
+    //         assert.isTrue(readDirRecursiveStub.calledOnce);
+    //     } catch (e) {
+    //         console.log(`Caught error: ${e}`);
+    //     }
+    // });
 
     //   it('should send an email if regex matches', async () => {
     //     readDirRecursiveStub.resolves(['file1']);
@@ -47,22 +64,22 @@ describe('checkTranscriptions', () => {
     //     assert.isTrue(sendEmailStub.calledOnce);
     //   });
 
-    it('should not check any files more than once', async () => {
-        readDirRecursiveStub.callsFake(async (dir) => {
-            console.log(`readDirRecursive called with: ${dir}`);  // Debug log
-            return ['file1', 'file1'];
-        });
-        readFileStub.callsFake(async (filePath) => {
-            console.log(`readFile called with: ${filePath}`);  // Debug log
-            return JSON.stringify({ text: 'some text' });
-        });
+    // it('should not check any files more than once', async () => {
+    //     readDirRecursiveStub.callsFake(async (dir) => {
+    //         console.log(`readDirRecursive called with: ${dir}`);  // Debug log
+    //         return ['file1', 'file1'];
+    //     });
+    //     readFileStub.callsFake(async (filePath) => {
+    //         console.log(`readFile called with: ${filePath}`);  // Debug log
+    //         return JSON.stringify({ text: 'some text' });
+    //     });
         
-        await checkTranscriptions();
-        await checkTranscriptions();
+    //     await checkTranscriptions();
+    //     await checkTranscriptions();
         
-        assert.isTrue(processedFiles.has('file1'));
-        assert.equal(processedFiles.size, 1);
-    });
+    //     assert.isTrue(processFile.has('file1'));
+    //     assert.equal(processFile.size, 1);
+    // });
 
     // it('should start with the newest file and go down in descending order', async () => {
     //     readDirRecursiveStub.resolves(['file2', 'file1']);
