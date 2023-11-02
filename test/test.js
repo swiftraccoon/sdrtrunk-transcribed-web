@@ -7,4 +7,5 @@ mocha.addFile('./checkTranscriptions.test.js');
 
 mocha.run((failures) => {
   process.exitCode = failures ? 1 : 0;
+  process.exit();
 });
