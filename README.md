@@ -1,5 +1,5 @@
 # sdrtrunk-transcribed-web
-[![CodeFactor](https://www.codefactor.io/repository/github/swiftraccoon/sdrtrunk-transcribed-web/badge)](https://www.codefactor.io/repository/github/swiftraccoon/sdrtrunk-transcribed-web)
+[![CodeFactor](https://www.codefactor.io/repository/github/swiftraccoon/sdrtrunk-transcribed-web/badge)](https://www.codefactor.io/repository/github/swiftraccoon/sdrtrunk-transcribed-web)[![CodeQL](https://github.com/swiftraccoon/sdrtrunk-transcribed-web/actions/workflows/codeql.yml/badge.svg)](https://github.com/swiftraccoon/sdrtrunk-transcribed-web/actions/workflows/codeql.yml)
 
 Node.JS website to display audio and transcriptions from one of the following apps:
 - [sdrtrunk-transcriber](https://github.com/swiftraccoon/sdrtrunk-transcriber) (Python)
