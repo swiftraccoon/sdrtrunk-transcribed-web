@@ -1,8 +1,8 @@
 {
-  "name": "sdr-node-site",
+  "name": "sdrtrunk-transcribed-web",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "mocha --exit"
   },
