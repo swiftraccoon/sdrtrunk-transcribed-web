@@ -1,0 +1,243 @@
+:root {
+    --primary-bg: #1A1A2E; /* A deep blue shade for calmness and depth */
+    --secondary-bg: #16213E; /* Complementary to primary for layering */
+    --accent-color: #E94560; /* A vibrant accent for calls to action */
+    --text-primary: #EFEFEF; /* High contrast text color for readability */
+    --text-secondary: #A7A7A7; /* Secondary text for less emphasis */
+}
+
+.search-box input[type="text"] {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px; /* Rounded edges */
+    color: var(--input-text); /* Text color */
+    padding: 10px;
+    width: 500px;
+    transition: all 0.3s ease;
+}
+
+/* Miscellaneous Styles */
+.separator, .filter_button_separator {
+    background: linear-gradient(to right, transparent, var(--separator), transparent);
+    height: 2px;
+    margin: 20px 0;
+}
+
+/* Glow when focused */
+.search-box input[type="text"]:focus {
+    border-color: var(--input-border-focus);
+    box-shadow: 0 0 10px var(--border-gray);
+    outline: none;
+}
+
+/* Body and Text */
+body {
+    background-color: var(--true-black);
+    color: var(--text-gray);
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.6;
+}
+
+/* Links */
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--link-hover);
+}
+
+/* Flexbox Layout */
+.flex-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-item {
+    margin-bottom: 10px;
+}
+
+.label-container {
+    display: inline-block;
+    width: 100px;
+}
+
+/* Audio Controls */
+.audio-player {
+    align-items: center;
+    background-color: var(--true-black);
+    display: flex;
+}
+
+#playPauseBtn {
+    background-color: var(--button-bg);
+    border: var(--button-border);
+    color: var(--button-text);
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+/* Custom Checkboxes */
+#autoRefreshCheckbox, #specialTextToggle {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--input-bg);
+    border: 2px solid var(--border-gray);
+    border-radius: 4px;
+    cursor: pointer;
+    height: 20px;
+    outline: none;
+    position: relative;
+    vertical-align: middle;
+    width: 20px;
+}
+
+#autoRefreshCheckbox:checked::before, #specialTextToggle:checked::before {
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    content: '';
+    height: 12px;
+    left: 5px;
+    position: absolute;
+    top: 2px;
+    transform: rotate(45deg);
+    width: 6px;
+}
+
+/* Form Elements */
+button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #refreshInterval, #specialTextToggle {
+    background-color: var(--button-bg);
+    border: 1px solid var(--button-border);
+    border-radius: 5px;
+    color: var(--button-text);
+    cursor: pointer;
+    padding: 5px;
+    vertical-align: middle;
+}
+
+button:hover, select:hover {
+    background-color: var(--hover-gray);
+}
+
+/* Collapsible Sections */
+.collapsible {
+    background-color: var(--true-black);
+    border: 1px solid var(--border-gray);
+    border-radius: 5px;
+    color: var(--text-gray);
+    cursor: pointer;
+    outline: none;
+    padding: 10px 15px;
+    text-align: left;
+}
+
+.collapsible:hover {
+    background-color: var(--hover-gray);
+}
+
+.collapsed {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+/* Miscellaneous Styles */
+.transcription, .eventbox {
+    background-color: var(--true-black);
+    border: 1px solid var(--border-gray);
+    border-radius: 5px;
+    margin: 20px 0;
+    padding: 20px;
+}
+
+.separator {
+    background: linear-gradient(to right, var(--true-black), var(--border-gray), var(--true-black));
+    height: 2px;
+    margin: 20px 0;
+}
+
+/* Text and Headers */
+h3, h4 {
+    color: var(--text-gray);
+    margin-top: 0;
+}
+
+.dateDisplay-text {
+    background-clip: text;
+    background-image: var(--gradient-text);
+    color: transparent;
+    display: inline;
+    -webkit-background-clip: text;
+}
+
+/* Form Layout */
+form {
+    align-items: center;
+    background-color: var(--true-black);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+}
+
+form > label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.subscription-form {
+    align-items: center;
+    background-color: var(--box-bg);
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.filterButton {
+    background-color: var(--true-black);
+    border-radius: 5px;
+    border: 1px solid var(--button-border);
+    color: var(--text-gray);
+    cursor: pointer;
+    padding: 1px 5px;
+    transition: background-color 0.3s ease;
+}
+
+.subscription-box input[type="text"] {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px; /* Rounded edges */
+    color: var(--input-text); /* Text color */
+    padding: 10px;
+    width: 185px;
+    transition: all 0.3s ease;
+}
+
+/* Glow when focused */
+.subscription-box input[type="text"]:focus {
+    border-color: var(--input-border-focus);
+    box-shadow: 0 0 10px var(--border-gray);
+    outline: none;
+}
+
+.subscription_button_separator {
+    background: linear-gradient(to right, transparent, var(--separator), transparent);
+    height: 1px;
+    margin: 5px 0;
+}
+
+.subscription_button {
+    background-color: var(--true-black);
+    border: 1px solid var(--button-border);
+    border-radius: 5px;
+    color: var(--text-gray);
+    cursor: pointer;
+    padding: 5px;
+    transition: background-color 0.3s ease;
+    text-align: left;
+}

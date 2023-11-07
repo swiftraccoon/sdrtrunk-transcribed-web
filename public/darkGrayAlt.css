@@ -1,0 +1,234 @@
+/* Global Styles */
+:root {
+    --dark-bg: #080808; /* Dark background for depth */
+    --light-gray: #b9b8b8; /* Lighter gray for contrast */
+    --medium-gray: #333; /* Medium gray for elements */
+    --dark-gray: #444; /* Even darker gray for hover effects */
+    --teal: #0e866e; /* Teal for links and buttons */
+    --teal-hover: #41b69f; /* Lighter teal for hover effects */
+    --blue: #3498db; /* Blue for certain texts */
+    --purple: #9b59b6; /* Purple for accents */
+    --orange: #e67e22; /* Orange for warnings */
+    --red: #e74c3c; /* Red for errors */
+    --green: #2ecc71; /* Green for success messages */
+    --border-color: #555; /* Border color for elements */
+    --box-shadow: rgba(0, 0, 0, 0.3); /* Shadow for depth */
+    --text-color: #a3a3a3; /* Text color for readability */
+    --box-bg: #111111; /* Background for boxes */
+    --border-light: #3a3a3a; /* Lighter border for contrast */
+    --hover-box-shadow: #474747; /* Shadow color for hover effects */
+    --gradient-text: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red); /* Gradient for text */
+}
+
+/* Search Box */
+.search-box input[type="text"] {
+    background-color: var(--box-bg);
+    border: 1px solid var(--medium-gray);
+    border-radius: 12px;
+    color: var(--light-gray);
+    padding: 10px;
+    width: 500px;
+    transition: all 0.3s ease;
+}
+
+/* Glow when focused */
+.search-box input[type="text"]:focus {
+    border-color: var(--medium-gray);
+    box-shadow: 0 0 10px var(--medium-gray);
+    outline: none;
+}
+
+/* Body */
+body {
+    background-color: var(--dark-bg);
+    color: var(--light-gray);
+    font-family: 'Open Sans', sans-serif;
+    line-height: 1.6;
+}
+
+/* Links */
+a {
+    color: var(--teal);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--teal-hover);
+}
+
+/* Flexbox Layout */
+.flex-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-item {
+    margin-bottom: 10px;
+}
+
+/* Form Elements */
+button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #refreshInterval, #specialTextToggle {
+    background-color: var(--medium-gray);
+    border: 1px solid var(--dark-gray);
+    border-radius: 5px;
+    color: var(--light-gray);
+    cursor: pointer;
+    padding: 5px;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    vertical-align: middle;
+}
+
+/* Button Hover */
+.button:hover {
+    box-shadow: 0 0 30px var(--hover-box-shadow);
+}
+
+/* Form Layout */
+form {
+    align-items: center;
+    background-color: var(--box-bg);
+    border: 1px solid var(--dark-gray);
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+}
+
+/* Custom Checkboxes */
+#autoRefreshCheckbox, #specialTextToggle {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--medium-gray);
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    height: 20px;
+    outline: none;
+    position: relative;
+    vertical-align: middle;
+    width: 20px;
+}
+
+#autoRefreshCheckbox:checked::before, #specialTextToggle:checked::before {
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    content: '';
+    height: 12px;
+    left: 5px;
+    position: absolute;
+    top: 2px;
+    transform: rotate(45deg);
+    width: 6px;
+}
+
+/* Audio Controls */
+.audio-player {
+    align-items: center;
+    background-color: var(--box-bg);
+    display: flex;
+}
+
+.playPauseBtn {
+    background-color: var(--medium-gray);
+    border: 1px solid var(--dark-gray);
+    border-radius: 5px;
+    color: var(--light-gray);
+    cursor: pointer;
+    padding: 0.25px 10px;
+}
+
+.playPauseBtn:hover {
+    box-shadow: 0 0 30px var(--hover-box-shadow);
+}
+
+/* Text and Headers */
+h3, h4 {
+    color: var(--text-color);
+    margin-top: 0;
+}
+
+.dateDisplay-text {
+    background-clip: text;
+    background-image: var(--gradient-text);
+    color: transparent;
+    display: inline;
+    -webkit-background-clip: text;
+}
+
+/* Collapsible Sections */
+.collapsible {
+    background-color: var(--medium-gray);
+    border: none;
+    border-radius: 5px;
+    color: var(--light-gray);
+    cursor: pointer;
+    outline: none;
+    padding: 10px 15px;
+    text-align: left;
+    transition: background-color 0.3s ease;
+}
+
+.collapsible:hover {
+    background-color: var(--dark-gray);
+}
+
+/* Miscellaneous Styles */
+.separator {
+    background: linear-gradient(to right, transparent, var(--dark-gray), transparent);
+    height: 2px;
+    margin: 5px 0;
+}
+
+/* Subscription Form */
+.subscription-form {
+    align-items: center;
+    background-color: var(--box-bg);
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+/* Subscription Box */
+.subscription-box input[type="text"] {
+    background-color: var(--box-bg);
+    border: 1px solid var(--medium-gray);
+    border-radius: 12px;
+    color: var(--light-gray);
+    padding: 10px;
+    width: 185px;
+    transition: all 0.3s ease;
+}
+
+/* Glow when focused */
+.subscription-box input[type="text"]:focus {
+    border-color: var(--medium-gray);
+    box-shadow: 0 0 10px var(--medium-gray);
+    outline: none;
+}
+
+/* Event Boxes */
+.eventbox {
+    background-color: var(--box-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 5px;
+    box-shadow: 2px 2px 12px var(--box-shadow);
+    margin: 20px 0;
+    padding: 20px;
+}
+
+/* Filter Button */
+.filterButton {
+    background-color: var(--medium-gray);
+    border-radius: 5px;
+    color: var(--light-gray);
+    cursor: pointer;
+    padding: 1px 5px;
+    transition: background-color 0.3s ease;
+}
+
+.filterButton:hover {
+    box-shadow: 0 0 20px var(--hover-box-shadow);
+}

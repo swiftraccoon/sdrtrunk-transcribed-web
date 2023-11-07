@@ -1,0 +1,277 @@
+/* Global Styles */
+:root {
+    --dark-bg: #89a7c2; /* Softer shade of blue */
+    --dark-gray: #333; /* Darker shade of gray */
+    --darker-gray: #555;
+    --light-gray: #a8a8a8; /* Warmer shade of gray */
+    --link-color: #5b9bd5; /* Softer shade of blue for links */
+    --hover-color: #3a85d2; /* Lighter shade of link color for hover effects */
+    --box-bg: #acacac; /* Very light gray for boxes */
+    --button-border: #007BFF;
+    --h3-color: #f1f1f1;
+    --transcript-text: #001a61;
+}
+
+/* Search Box */
+.search-box input[type="text"] {
+  background-color: var(--box-bg);
+  border: 1px solid var(--link-color);
+  border-radius: 12px; /* Rounded edges */
+  color: var(--h3-color); /* Text color */
+  padding: 10px;
+  width: 500px;
+  transition: all 0.3s ease;
+}
+
+/* Glow when focused */
+.search-box input[type="text"]:focus {
+  border-color: var(--link-color);
+  box-shadow: 0 0 10px var(--link-color);
+  outline: none;
+}
+/* Body and Text */
+body, .specialText {
+    background-color: var(--dark-bg);
+    color: var(--transcript-text);
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.6;
+}
+
+/* Links */
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--hover-color);
+}
+
+/* Flexbox Layout */
+.flex-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-item {
+    margin-bottom: 10px;
+}
+
+.label-container {
+    display: inline-block;
+    width: 100px;
+}
+
+/* Audio Controls */
+.audio-player {
+    align-items: center;
+    background-color: var(--box-bg);
+    display: flex;
+}
+
+.playPauseBtn {
+    background-color: var(--box-bg);
+    border: 1px solid var(--button-border);
+    border-radius: 5px;
+    position: relative;
+    color: var(--link-color);
+    cursor: pointer;
+    padding: 0.25px 15px;
+}
+
+/* Custom Checkboxes */
+#autoRefreshCheckbox, #specialTextToggle {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--dark-gray);
+    border: 2px solid var(--darker-gray);
+    border-radius: 4px;
+    cursor: pointer;
+    height: 20px;
+    outline: none;
+    position: relative;
+    vertical-align: middle;
+    width: 20px;
+}
+
+#autoRefreshCheckbox:checked::before, #specialTextToggle:checked::before {
+    border: solid var(--button-border);
+    border-width: 0 2px 2px 0;
+    content: '';
+    height: 12px;
+    left: 5px;
+    position: absolute;
+    top: 2px;
+    transform: rotate(45deg);
+    width: 6px;
+}
+
+/* Form Elements */
+button, input[type="date"], input[type="time"] {
+    background-color: var(--box-bg);
+    border: 1px solid var(--button-border);
+    border-radius: 5px;
+    color: var(--link-color);
+    cursor: pointer;
+    padding: 5px;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover, input[type="date"]:focus, input[type="time"]:focus {
+    border-color: var(--button-border);
+    box-shadow: 0 0 5px var(--button-border);
+}
+
+.subscription_button {
+    background-color: var(--box-bg);
+    border: 1px solid var(--button-border);
+    border-radius: 5px;
+    position: relative;
+    color: var(--link-color);
+    cursor: pointer;
+    padding: 3px;
+    transition: background-color 0.3s ease;
+    text-align: left;
+}
+
+/* Collapsible Sections */
+.collapsible {
+    background-color: var(--link-color);
+    border: none;
+    border-radius: 5px;
+    color: var(--h3-color);
+    cursor: pointer;
+    outline: none;
+    padding: 10px 15px;
+    text-align: left;
+    transition: background-color 0.3s ease;
+}
+
+.collapsible:hover {
+    background-color: var(--hover-color);
+}
+
+.collapsed {
+    display: none;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+/* Text and Headers */
+h3 {
+    color: var(--h3-color);
+    margin-top: 0;
+}
+
+.dateDisplay-text {
+    background-clip: text;
+    background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
+    color: transparent;
+    display: inline;
+    -webkit-background-clip: text;
+}
+
+/* Miscellaneous Styles */
+.separator {
+    background: linear-gradient(to right, transparent, #555555, transparent);
+    height: 2px;
+    margin: 7px 0;
+}
+
+.filter_button_separator {
+    background: linear-gradient(to right, transparent, #444, transparent);
+    height: 1px;
+    margin: 7px 0;
+}
+
+.subscription_button_separator {
+    background: linear-gradient(to right, transparent, #444, transparent);
+    height: 1px;
+    margin: 5px 0;
+}
+
+.transcription, .eventbox {
+    background-color: var(--box-bg);
+    border: 1px solid var(--darker-gray);
+    border-radius: 5px;
+    box-shadow: 2px 2px 12px var(--darker-gray);;
+    margin: 20px 0;
+    padding: 20px;
+}
+
+.filterButton {
+    background-color: var(--box-bg);
+    border: 1px solid var(--button-border);
+    border-radius: 5px;
+    position: relative;
+    color: var(--link-color);
+    cursor: pointer;
+    padding: 1px 5px;
+    transition: background-color 0.3s ease;
+}
+
+/* Form Layout */
+form {
+    align-items: center;
+    background-color: var(--box-bg);
+    border: 1px solid var(--darker-gray);
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+form:hover {
+    background-color: var(--dark-gray);
+}
+
+form > label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.subscription-form {
+    align-items: center;
+    background-color: var(--box-bg);
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+/* Search Box */
+.subscription-box input[type="text"] {
+    background-color: var(--box-bg);
+    border: 1px solid var(--link-color);
+    border-radius: 12px; /* Rounded edges */
+    color: var(--h3-color); /* Text color */
+    padding: 10px;
+    width: 185px;
+    transition: all 0.3s ease;
+}
+
+/* Glow when focused */
+.subscription-box input[type="text"]:focus {
+    border-color: var(--link-color);
+    box-shadow: 0 0 10px var(--link-color);
+    outline: none;
+}
+
+select {
+    background-color: var(--box-bg);
+    border: 1px solid var(--darker-gray);
+    border-radius: 5px;
+    color: var(--light-gray);
+    cursor: pointer;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+select:hover, select:focus {
+    background-color: var(--dark-gray);
+    border-color: var(--button-border);
+}

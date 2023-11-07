@@ -3,8 +3,10 @@ const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const routes = require('./routes');
+const https = require('https');
+const fs = require('fs');
 const bodyParser = require('body-parser');
+const routes = require('./routes');
 const { loadCache } = require('./search');
 const checkTranscriptions = require('./checkTranscriptions').checkTranscriptions;
 const config = require('./config');
@@ -12,8 +14,7 @@ const PORT = config.PORT;
 const sessionSecretKey = config.sessionSecretKey;
 const privateKeyPath = config.privateKeyPath;
 const certificatePath = config.certificatePath;
-const https = require('https');  // Import the https module
-const fs = require('fs');  // Import the fs module
+
 
 // Constants
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -23,14 +24,15 @@ const app = express();
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({ secret: `${sessionSecretKey}`, resave: false, saveUninitialized: true }));
-// console.log("Session Secret Key Length:", sessionSecretKey.length);
-
-// app.use((req, res, next) => {
-//     console.log(`Incoming request: ${req.method} ${req.url}`);
-//     console.log("Request Headers:", req.headers); 
-//     next();
-// });
+app.use(session({
+    secret: sessionSecretKey,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: true, // Ensure the cookie is only used over HTTPS
+      httpOnly: true // Ensure the cookie is not accessible via client-side scripts
+    }
+  }));
 
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
@@ -55,5 +57,5 @@ const httpsServer = https.createServer(credentials, app);
     httpsServer.listen(PORT, () => {
         console.log(`Server running on https://localhost:${PORT}`);
     });
-    setInterval(checkTranscriptions, 10 * 1000); // Check every minute
+    setInterval(checkTranscriptions, 10 * 1000); // Check every 10 seconds
 })();
