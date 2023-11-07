@@ -197,7 +197,7 @@ h3 {
     background-color: var(--box-bg);
     border: 1px solid var(--darker-gray);
     border-radius: 5px;
-    box-shadow: 2px 2px 12px var(--darker-gray);;
+    box-shadow: 2px 2px 12px var(--darker-gray);
     margin: 20px 0;
     padding: 20px;
 }
