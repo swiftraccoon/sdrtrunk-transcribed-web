@@ -144,9 +144,9 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                         <!-- Build list of transcriptions -->
                         <div class="separator"></div>
                         ${transcriptions.map(t => {
-        let ridMatch = t.transcription.match(/"(\d+)(?: \([^)]+\))?"/);  // Regular expression to find a sequence of digits, optionally followed by a description in parentheses
-        let rid = ridMatch ? ridMatch[1] : 'Unknown';  // If a match is found, use it; otherwise, set to 'Unknown'
         let fileName = path.basename(t.audio, '.mp3');
+        let ridMatch = fileName.match(/FROM_(\d+)/);  // regex to extract RID from file name
+        let rid = ridMatch ? ridMatch[1] : 'Unknown';  // Use extracted RID or 'Unknown' if not found
         let dateMatch = fileName.match(/\d{4}\d{2}\d{2}_\d{2}\d{2}\d{2}/);
         let idDescription = idDescriptionMap[t.id] ? ` (${idDescriptionMap[t.id]})` : '';  // Get the description if available
         let ridDescription = radio_id_names[rid] ? ` (${radio_id_names[rid]})` : '';  // Get the description if available
