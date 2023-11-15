@@ -10,7 +10,8 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
     const themeCSSLink = {
         gray: "public/gray.css",
         darkGray: "public/darkGray.css",
-        ultraDark: "public/ultraDark.css"
+        ultraDark: "public/ultraDark.css",
+        colorPsych: "public/colorPsych.css",
     }[theme] || "public/gray.css"; // Use gray theme as default if theme is undefined or not matching.    
     return `
         <!DOCTYPE html>
@@ -51,6 +52,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                     <option value="gray" ${theme === 'gray' ? 'selected' : ''}>Gray</option>
                     <option value="darkGray" ${theme === 'darkGray' ? 'selected' : ''}>Dark Gray</option>
                     <option value="ultraDark" ${theme === 'ultraDark' ? 'selected' : ''}>Ultra Dark</option>
+                    <option value="colorPsych" ${theme === 'colorPsych' ? 'selected' : ''}>colorPsych</option>
                     </select>
                 </div>
                 <!-- Special text -->

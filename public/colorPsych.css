@@ -1,36 +1,50 @@
 :root {
-    --primary-bg: #1A1A2E; /* A deep blue shade for calmness and depth */
-    --secondary-bg: #16213E; /* Complementary to primary for layering */
-    --accent-color: #E94560; /* A vibrant accent for calls to action */
-    --text-primary: #EFEFEF; /* High contrast text color for readability */
-    --text-secondary: #A7A7A7; /* Secondary text for less emphasis */
+    --primary-bg: #1A1A2E;
+    --secondary-bg: #16213E;
+    --accent-color: #E94560;
+    --text-primary: #EFEFEF;
+    --text-secondary: #A7A7A7;
+
+    /* New colors */
+    --input-bg: #2E2E46; /* Slightly lighter than primary-bg */
+    --input-border: #3E3E5E; /* Border color for inputs */
+    --input-text: #EFEFEF; /* Text color for inputs, same as text-primary */
+    --input-border-focus: #E94570; /* Focus color for inputs, a variant of accent-color */
+    --border-gray: #5A5A7A; /* A gray shade for borders */
+    --true-black: #1A1A2E; /* Using primary-bg as true black */
+    --text-gray: #CCCCCC; /* A lighter gray for general text */
+    --link-color: #E94560; /* Link color, same as accent-color */
+    --link-hover: #FF5768; /* Hover color for links, a lighter variant of accent-color */
+    --button-bg: #16213E; /* Button background, same as secondary-bg */
+    --button-border: #3E3E5E; /* Button border color */
+    --button-text: #EFEFEF; /* Button text color, same as text-primary */
+    --hover-gray: #24243E; /* Hover color for various elements */
+    --box-bg: #252547; /* Background color for boxes */
+    --gradient-text: linear-gradient(to right, #E94560, #EFEFEF); /* Gradient for text */
 }
 
 .search-box input[type="text"] {
     background-color: var(--input-bg);
     border: 1px solid var(--input-border);
-    border-radius: 12px; /* Rounded edges */
-    color: var(--input-text); /* Text color */
+    border-radius: 12px;
+    color: var(--input-text);
     padding: 10px;
     width: 500px;
     transition: all 0.3s ease;
 }
 
-/* Miscellaneous Styles */
 .separator, .filter_button_separator {
-    background: linear-gradient(to right, transparent, var(--separator), transparent);
+    background: linear-gradient(to right, transparent, var(--border-gray), transparent);
     height: 2px;
     margin: 20px 0;
 }
 
-/* Glow when focused */
 .search-box input[type="text"]:focus {
     border-color: var(--input-border-focus);
     box-shadow: 0 0 10px var(--border-gray);
     outline: none;
 }
 
-/* Body and Text */
 body {
     background-color: var(--true-black);
     color: var(--text-gray);
@@ -38,7 +52,6 @@ body {
     line-height: 1.6;
 }
 
-/* Links */
 a {
     color: var(--link-color);
     text-decoration: none;
@@ -49,7 +62,6 @@ a:hover {
     color: var(--link-hover);
 }
 
-/* Flexbox Layout */
 .flex-container {
     display: flex;
     flex-direction: column;
@@ -64,7 +76,6 @@ a:hover {
     width: 100px;
 }
 
-/* Audio Controls */
 .audio-player {
     align-items: center;
     background-color: var(--true-black);
@@ -73,13 +84,12 @@ a:hover {
 
 #playPauseBtn {
     background-color: var(--button-bg);
-    border: var(--button-border);
+    border: 1px solid var(--button-border);
     color: var(--button-text);
     cursor: pointer;
     padding: 5px 10px;
 }
 
-/* Custom Checkboxes */
 #autoRefreshCheckbox, #specialTextToggle {
     -moz-appearance: none;
     -webkit-appearance: none;
@@ -107,7 +117,6 @@ a:hover {
     width: 6px;
 }
 
-/* Form Elements */
 button, select, input[type="date"], input[type="time"], #autoRefreshCheckbox, #refreshInterval, #specialTextToggle {
     background-color: var(--button-bg);
     border: 1px solid var(--button-border);
@@ -122,7 +131,6 @@ button:hover, select:hover {
     background-color: var(--hover-gray);
 }
 
-/* Collapsible Sections */
 .collapsible {
     background-color: var(--true-black);
     border: 1px solid var(--border-gray);
@@ -144,7 +152,6 @@ button:hover, select:hover {
     transition: max-height 0.2s ease-out;
 }
 
-/* Miscellaneous Styles */
 .transcription, .eventbox {
     background-color: var(--true-black);
     border: 1px solid var(--border-gray);
@@ -159,7 +166,6 @@ button:hover, select:hover {
     margin: 20px 0;
 }
 
-/* Text and Headers */
 h3, h4 {
     color: var(--text-gray);
     margin-top: 0;
@@ -173,7 +179,6 @@ h3, h4 {
     -webkit-background-clip: text;
 }
 
-/* Form Layout */
 form {
     align-items: center;
     background-color: var(--true-black);
@@ -211,14 +216,13 @@ form > label {
 .subscription-box input[type="text"] {
     background-color: var(--input-bg);
     border: 1px solid var(--input-border);
-    border-radius: 12px; /* Rounded edges */
-    color: var(--input-text); /* Text color */
+    border-radius: 12px;
+    color: var(--input-text);
     padding: 10px;
     width: 185px;
     transition: all 0.3s ease;
 }
 
-/* Glow when focused */
 .subscription-box input[type="text"]:focus {
     border-color: var(--input-border-focus);
     box-shadow: 0 0 10px var(--border-gray);
