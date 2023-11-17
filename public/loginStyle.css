@@ -1,51 +1,74 @@
-/* Dark Mode */
+/* General Styles */
 * {
     box-sizing: border-box;
 }
 body {
     background-color: #121212;
-    color: #808080;
-    font-family: Arial, sans-serif;
+    color: #FFF;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
+.main {
+    width: 90%;
+    max-width: 400px;
+}
+
+/* Typography */
 h1 {
     text-align: center;
+    color: #FFFFFF;
     margin-bottom: 30px;
 }
+
 /* Form Styling */
 form {
-    max-width: 400px;
-    margin: auto;
     padding: 20px;
-    border: 2px solid #333;
     border-radius: 10px;
-    background-color: #1e1e1e;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #2C2C2C;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.input-group {
+    margin-bottom: 20px;
 }
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     font-weight: bold;
 }
 input[type="text"],
 input[type="password"] {
-    background-color: #121212;
-    color: rgb(168, 168, 168);
     width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
     border: 1px solid #333;
     border-radius: 5px;
+    background-color: #1A1A1A;
+    color: #FFF;
 }
-input[type="submit"],
+
+/* Button Styles */
 button {
-    padding: 10px 20px;
-    background-color: #004ea1;
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #3F51B5;
     border: none;
     border-radius: 5px;
-    color: rgb(168, 168, 168);
+    color: white;
     cursor: pointer;
+    font-size: 16px;
 }
-input[type="submit"]:hover,
 button:hover {
-    background-color: rgb(0, 49, 102);
+    background-color: #3346A1;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 600px) {
+    .login-container {
+        width: 100%;
+        padding: 10px;
+    }
 }
