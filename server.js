@@ -23,9 +23,6 @@ const checkTranscriptions = require('./checkTranscriptions').checkTranscriptions
 
 // Directory paths
 const PUBLIC_DIR = path.join(__dirname, 'public');
-const AUDIO_DIR = path.join(__dirname, config.audioFolderPath);
-const TRANSCRIPTIONS_DIR = path.join(__dirname, config.transcriptionsFolderPath);
-
 
 // Initialize app
 const app = express();
@@ -46,8 +43,6 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 app.use('/public', express.static(PUBLIC_DIR));
-app.use('/audio', express.static(AUDIO_DIR));
-app.use('/transcriptions', express.static(TRANSCRIPTIONS_DIR));
 app.use('/', routes);
 
 app.use((err, req, res, next) => {
