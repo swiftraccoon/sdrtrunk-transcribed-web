@@ -1,12 +1,21 @@
-const moment = require('moment-timezone');
-const path = require('path');
-const bcrypt = require('bcrypt');
-const PUBLIC_DIR = path.join(__dirname, 'public');
+// Core Node.js modules
 const fs = require('fs');
+const path = require('path');
+
+// External libraries
+const moment = require('moment-timezone');
+
+// Configuration import
 const config = require('./config');
+
+// Constants
+const PUBLIC_DIR = path.join(__dirname, 'public');
+
+// Configuration settings from config
 const confirmIDSTRLength = config.confirmIDSTRLength;
 const confirmIDSubSTRBegin = config.confirmIDSubSTRBegin;
 const confirmIDSubSTREnd = config.confirmIDSubSTREnd;
+
 
 function isWithinDateRange(fileName, startDate, endDate) {
     let dateMatch = fileName.match(/(\d{4}\d{2}\d{2})_(\d{2}\d{2}\d{2})/);

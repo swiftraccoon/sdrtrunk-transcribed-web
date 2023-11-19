@@ -1,26 +1,28 @@
+// Core Node.js modules
 const fs = require('fs');
 const path = require('path');
-const PUBLIC_DIR = path.join(__dirname, 'public');
-const renderHTML = require('./renderHTML');
-const { searchTranscriptions } = require('./search');
-const sendEmailWithRateLimit = require('./email');
 const express = require('express');
+
+// Router setup
 const router = express.Router();
-const db = require('./database');
-const { generateConfirmationId, getQueryParams, getDefaultDateTime, processDirectory } = require('./utility');
-const myEmitter = require('./events');
+
+// Configuration and utilities
 const config = require('./config');
 const WEB_URL = config.WEB_URL;
+const { generateConfirmationId, getQueryParams, getDefaultDateTime, processDirectory } = require('./utility');
 const { requireAuth } = require('./authMiddleware');
 
-// Add this middleware near the top, after router is initialized
-// router.use((req, res, next) => {
-//     if (req.method === 'POST') {
-//         console.log('POST request body:', req.body);
-//         console.log("POST request headers:", req.headers);  // Debugging line 5
-//     }
-//     next();
-// });
+// Services and database
+const db = require('./database');
+const sendEmailWithRateLimit = require('./email');
+const myEmitter = require('./events');
+
+// Custom modules and functions
+const renderHTML = require('./renderHTML');
+const { searchTranscriptions } = require('./search');
+
+// Constants
+const PUBLIC_DIR = path.join(__dirname, 'public');
 
 
 // Add a new POST route for login

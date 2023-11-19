@@ -1,23 +1,31 @@
-// Import modules
+// Core Node.js modules
 const express = require('express');
-const path = require('path');
-const session = require('express-session');
-const cookieParser = require('cookie-parser');
-const https = require('https');
 const fs = require('fs');
+const https = require('https');
+const path = require('path');
+
+// Middleware and utilities
 const bodyParser = require('body-parser');
-const routes = require('./routes');
-const { loadCache } = require('./search');
-const checkTranscriptions = require('./checkTranscriptions').checkTranscriptions;
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+
+// Configuration and constants
 const config = require('./config');
 const PORT = config.PORT;
 const sessionSecretKey = config.sessionSecretKey;
 const privateKeyPath = config.privateKeyPath;
 const certificatePath = config.certificatePath;
 
+// Routes and custom modules
+const routes = require('./routes');
+const { loadCache } = require('./search');
+const checkTranscriptions = require('./checkTranscriptions').checkTranscriptions;
 
-// Constants
+// Directory paths
 const PUBLIC_DIR = path.join(__dirname, 'public');
+const AUDIO_DIR = path.join(__dirname, config.audioFolderPath);
+const TRANSCRIPTIONS_DIR = path.join(__dirname, config.transcriptionsFolderPath);
+
 
 // Initialize app
 const app = express();
@@ -29,16 +37,17 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: true, // Ensure the cookie is only used over HTTPS
-      httpOnly: true // Ensure the cookie is not accessible via client-side scripts
+        secure: true, // Ensure the cookie is only used over HTTPS
+        httpOnly: true // Ensure the cookie is not accessible via client-side scripts
     }
-  }));
+}));
 
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 app.use('/public', express.static(PUBLIC_DIR));
-
+app.use('/audio', express.static(AUDIO_DIR));
+app.use('/transcriptions', express.static(TRANSCRIPTIONS_DIR));
 app.use('/', routes);
 
 app.use((err, req, res, next) => {

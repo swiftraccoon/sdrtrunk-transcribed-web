@@ -4,8 +4,6 @@ const EMAIL_HOST = config.EMAIL_HOST;
 const EMAIL_PORT = config.EMAIL_PORT;
 const EMAIL_USER = config.EMAIL_USER;
 const EMAIL_PASS = config.EMAIL_PASS;
-const maxHourlyEmails = config.maxHourlyEmails;
-const maxDailyEmails = config.maxDailyEmails;
 
 let hourlyEmailCount = 0;
 let dailyEmailCount = 0;

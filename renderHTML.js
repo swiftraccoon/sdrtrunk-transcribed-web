@@ -1,10 +1,14 @@
+// Module imports
 const path = require('path');
 const config = require('./config');
+
+// Configuration settings from config
 const WEB_nodeID = config.WEB_nodeID;
 const WEB_nodeName = config.WEB_nodeName;
 const idDescriptionMap = config.idDescriptionMap;
 const radio_id_names = config.radio_id_names;
 const broadcastifyLinks = config.broadcastifyLinks;
+
 
 function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, theme) {
     const themeCSSLink = {
