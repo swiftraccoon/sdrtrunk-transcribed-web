@@ -4,6 +4,8 @@ public/audio/41000
 public/audio/41010
 public/transcriptions/41000
 public/transcriptions/41010
+public/audio/9999
+public/transcriptions/9999
 config.js
 server.cert
 server.key

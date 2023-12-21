@@ -43,26 +43,27 @@ const formatDate = (dateObj) => moment(dateObj).format('YYYY-MM-DD');
 const formatTime = (dateObj) => moment(dateObj).format('HH:mm');
 
 const filterAndSortAudioFiles = (files, selectedRadioIds, selectedTalkgroupIds, startDate, endDate, dir) => {
-    //console.log("Selected Talkgroup IDs: ", selectedTalkgroupIds);  // Debug log
-
     return files
         .filter(file => {
-            const radioIdMatch = file.match(/FROM_(\d+)\.mp3/);
-            if (!radioIdMatch) return false;
-            const radioId = radioIdMatch[1];
+            // Check if the file is an MP3 file
+            if (!file.endsWith('.mp3')) return false;
 
-            try {
-                return (selectedRadioIds.includes('') || selectedRadioIds.includes(radioId)) &&
-                    (selectedTalkgroupIds.includes('') || selectedTalkgroupIds.includes(dir)) &&  // Check this line
-                    file.endsWith('.mp3') &&
-                    isWithinDateRange(file, startDate, endDate);
-            } catch (error) {
-                console.error("Error in filterAndSortAudioFiles: ", error);  // Error handling
-                return false;
-            }
+            // Extract the radio ID from the filename, if present
+            const radioIdMatch = file.match(/FROM_(\d+)\.mp3/);
+            const radioId = radioIdMatch ? radioIdMatch[1] : 'Unknown';
+
+            // Check if the file is within the selected date range
+            if (!isWithinDateRange(file, startDate, endDate)) return false;
+
+            // Check if the radio ID and talkgroup ID match the selected filters
+            const isRadioIdSelected = selectedRadioIds.includes('') || selectedRadioIds.includes(radioId);
+            const isTalkgroupIdSelected = selectedTalkgroupIds.includes('') || selectedTalkgroupIds.includes(dir);
+
+            return isRadioIdSelected && isTalkgroupIdSelected;
         })
         .sort((a, b) => extractDateFromFilename(b) - extractDateFromFilename(a));
 };
+
 
 const getQueryParams = (req) => ({
     selectedRadioIds: req.query.radioIds ? [req.query.radioIds] : [''],

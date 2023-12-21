@@ -25,7 +25,8 @@
     "nodemailer": "^6.9.7",
     "path": "^0.12.7",
     "sqlite3": "^5.1.6",
-    "useragent": "^2.3.0"
+    "useragent": "^2.3.0",
+    "ws": "^8.14.2"
   },
   "devDependencies": {
     "chai": "^4.3.10",
