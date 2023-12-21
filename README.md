@@ -34,9 +34,12 @@ It's themed to be used on a mobile device or to take up very little width and be
 1. Clone the repository.
 2. Run `npm install` to install dependencies.
 3. Rename `example.config.js` to `config.js` and update the configuration settings.
-4. Utilize Let's Encrypt or generate your own: `openssl req -nodes -new -x509 -keyout server.key -out server.cert`
-6. Start the server using `node server.js`.
-7. Access the application at `https://localhost:3000`.
+4. Utilize Let's Encrypt (`certbot`) or generate your own: `openssl req -nodes -new -x509 -keyout server.key -out server.cert`
+5. `ENOSPC: System limit for number of file watchers reached`
+   - Temporary fix: `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
+   - Permanent fix: `sudo nano /etc/sysctl.conf` and add `fs.inotify.max_user_watches=524288`
+7. Start the server using `node server.js`.
+8. Access the application at `https://localhost:3000`.
 
 ## API Endpoints
 - `GET /`: Main route for filtering and sorting audio files and their transcriptions.
