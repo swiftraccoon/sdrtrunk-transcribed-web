@@ -24,7 +24,7 @@
     "moment-timezone": "^0.5.44",
     "nodemailer": "^6.9.8",
     "path": "^0.12.7",
-    "sqlite3": "^5.1.6",
+    "sqlite3": "^5.1.7",
     "useragent": "^2.3.0",
     "ws": "^8.16.0"
   },
