@@ -21,7 +21,7 @@
     "express-session": "^1.18.0",
     "fingerprintjs": "^0.5.3",
     "fs": "^0.0.1-security",
-    "moment-timezone": "^0.5.45",
+    "moment-timezone": "^0.6.0",
     "nodemailer": "^6.9.9",
     "path": "^0.12.7",
     "sqlite3": "^5.1.7",
