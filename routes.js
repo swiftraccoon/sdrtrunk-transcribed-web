@@ -111,7 +111,7 @@ router.get('/verify/:id', requireAuth, (req, res) => {
     });
 });
 
-router.get('/robots.txt', (res) => {
+router.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.send("User-agent: *\nDisallow: /");
 });
@@ -140,7 +140,8 @@ router.get('/', requireAuth, async (req, res) => {
     flattenedTranscriptions.sort((a, b) => b.timestamp - a.timestamp);
 
     res.set('Cache-Control', 'no-store');
-    res.send(renderHTML(flattenedTranscriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, userSelectedTheme));
+    const csrfToken = req.csrfToken();
+    res.send(renderHTML(flattenedTranscriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, userSelectedTheme, csrfToken));
 });
 
 

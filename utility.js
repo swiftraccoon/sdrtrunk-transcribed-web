@@ -4,17 +4,10 @@ const path = require('path');
 
 // External libraries
 const moment = require('moment-timezone');
-
-// Configuration import
-const config = require('./config');
+const crypto = require('crypto');
 
 // Constants
 const PUBLIC_DIR = path.join(__dirname, 'public');
-
-// Configuration settings from config
-const confirmIDSTRLength = config.confirmIDSTRLength;
-const confirmIDSubSTRBegin = config.confirmIDSubSTRBegin;
-const confirmIDSubSTREnd = config.confirmIDSubSTREnd;
 
 
 function isWithinDateRange(fileName, startDate, endDate) {
@@ -105,9 +98,9 @@ const processDirectory = async (dir, selectedRadioIds, selectedTalkgroupIds, sta
     return transcriptions;
 };
 
-// Generate a unique confirmation ID (implement this function)
+// Generate a cryptographically secure confirmation ID
 const generateConfirmationId = () => {
-    return Math.random().toString(confirmIDSTRLength).substring(confirmIDSubSTRBegin, confirmIDSubSTREnd);
+    return crypto.randomBytes(24).toString('hex');
 };
 
 module.exports = {

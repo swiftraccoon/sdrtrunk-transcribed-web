@@ -8,6 +8,8 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const rateLimit = require('express-rate-limit');
+const { doubleCsrf } = require('csrf-csrf');
 
 // Configuration and constants
 const config = require('./config');
@@ -26,6 +28,11 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 
 // Initialize app
 const app = express();
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100
+});
+app.use(limiter);
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -39,10 +46,24 @@ app.use(session({
     }
 }));
 
+const { doubleCsrfProtection, generateToken } = doubleCsrf({
+    getSecret: () => sessionSecretKey,
+    cookieName: '__csrf',
+    cookieOptions: { secure: true, httpOnly: true, sameSite: 'strict' },
+    getTokenFromRequest: (req) => req.body._csrf || req.headers['x-csrf-token']
+});
+
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'login.html'));
+    const csrfToken = generateToken(req, res);
+    const loginHTML = fs.readFileSync(path.join(__dirname, 'login.html'), 'utf8');
+    res.send(loginHTML.replace('</form>', `<input type="hidden" name="_csrf" value="${csrfToken}">\n    </form>`));
 });
 app.use('/public', express.static(PUBLIC_DIR));
+app.use(doubleCsrfProtection);
+app.use((req, res, next) => {
+    req.csrfToken = () => generateToken(req, res);
+    next();
+});
 app.use('/', routes);
 
 app.use((err, req, res, next) => {

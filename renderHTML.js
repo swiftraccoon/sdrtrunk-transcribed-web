@@ -10,7 +10,7 @@ const radio_id_names = config.radio_id_names;
 const broadcastifyLinks = config.broadcastifyLinks;
 
 
-function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, theme) {
+function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultEndDate, defaultEndTime, selectedRadioIds, selectedTalkgroupIds, theme, csrfToken) {
     const themeCSSLink = {
         gray: "public/gray.css",
         darkGray: "public/darkGray.css",
@@ -40,6 +40,7 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                 </form>
                 </div><br />
                 <form action="/subscribe" method="post" class="subscription-form">
+                <input type="hidden" name="_csrf" value="${csrfToken}">
                 <div class="subscription-box">
                     <input type="text" id="regex" name="regex" placeholder="Enter regex">
                     <input type="text" id="email" name="email" placeholder="Enter email"><br />
@@ -310,7 +311,8 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                     fetch('/subscribe', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'x-csrf-token': '${csrfToken}'
                         },
                         body: JSON.stringify({ regex, email })
                     })
@@ -335,7 +337,8 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                     fetch('/unsubscribe', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'x-csrf-token': '${csrfToken}'
                         },
                         body: JSON.stringify({ email })
                     })
