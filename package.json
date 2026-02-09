@@ -27,7 +27,7 @@
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "chai": "^5.1.0",
+    "chai": "^6.2.2",
     "chai-http": "^4.4.0",
     "mocha": "^10.8.0",
     "sinon": "^17.0.1"
