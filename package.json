@@ -19,7 +19,7 @@
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-basic-auth": "^1.2.1",
-    "express-rate-limit": "^7.5.0",
+    "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.2",
     "moment-timezone": "^0.5.45",
     "nodemailer": "^7.0.11",
