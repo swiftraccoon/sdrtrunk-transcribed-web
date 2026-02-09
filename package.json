@@ -12,7 +12,7 @@
   "dependencies": {
     "@simplewebauthn/server": "^9.0.3",
     "bcrypt": "^6.0.0",
-    "body-parser": "^1.20.3",
+    "body-parser": "^2.2.2",
     "chokidar": "^3.6.0",
     "cookie-parser": "^1.4.7",
     "csrf-csrf": "^3.0.6",
