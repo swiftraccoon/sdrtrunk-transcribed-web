@@ -10,26 +10,21 @@
   "author": "swiftraccoon",
   "license": "ISC",
   "dependencies": {
-    "@simplewebauthn/server": "^9.0.3",
     "bcrypt": "^6.0.0",
-    "body-parser": "^1.20.3",
     "chokidar": "^3.6.0",
     "cookie-parser": "^1.4.7",
     "csrf-csrf": "^3.0.6",
-    "ejs": "^3.1.10",
     "express": "^4.21.2",
-    "express-basic-auth": "^1.2.1",
     "express-rate-limit": "^7.5.0",
     "express-session": "^1.18.2",
     "moment-timezone": "^0.5.45",
     "nodemailer": "^7.0.11",
-    "sqlite3": "^5.1.7",
-    "ws": "^8.18.3"
+    "re2": "^1.24.1",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "chai": "^5.1.0",
-    "chai-http": "^4.4.0",
     "mocha": "^10.8.0",
-    "sinon": "^17.0.1"
+    "sinon": "^17.0.1",
+    "supertest": "^7.0.0"
   }
 }

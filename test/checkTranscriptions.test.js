@@ -1,144 +1,83 @@
-const chai = require('chai');
-const assert = chai.assert;
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
 const sinon = require('sinon');
-const { checkTranscriptions, processFile, processedFiles } = require('../checkTranscriptions');
-const fs = require('fs').promises;
+const db = require('../database');
+const { transporter } = require('../email');
+const { processFile, fetchActiveSubscriptions } = require('../checkTranscriptions');
 
-describe('checkTranscriptions', () => {
-    let readDirRecursiveStub, processFileStub;
-    let sandbox;
-    beforeEach(() => {
-        sandbox = sinon.createSandbox();
-        readDirRecursiveStub = sandbox.stub(fs, 'readdir');
-        readFileStub = sandbox.stub(fs, 'readFile');
-        processFileStub = sandbox.stub(processFile);
+const dbRun = (sql, params) => new Promise((resolve, reject) =>
+    db.run(sql, params, function (err) { err ? reject(err) : resolve(this); }));
+
+const TMP_DIR = path.join(__dirname, '.tmp');
+const FIXTURE = path.join(TMP_DIR, '20990101_000000_TEST.txt');
+
+const addSub = (email, regex) => dbRun(
+    `INSERT INTO subscriptions (regex, email, verified, enabled, confirmationID) VALUES (?, ?, 1, 1, ?)`,
+    [regex, email, `cid-${email}`]);
+
+describe('transcription notifier', () => {
+    before(() => {
+        fs.mkdirSync(TMP_DIR, { recursive: true });
+        fs.writeFileSync(FIXTURE, JSON.stringify({ '1610018': 'engine 5 responding to Main St' }));
     });
 
-    afterEach(() => {
-        sandbox.restore();  // Restore all stubs
+    beforeEach(async () => {
+        await dbRun('DELETE FROM subscriptions', []);
     });
 
-    it('should return the full, unedited transcription', async function() {
-        // Arrange
-        const mockContent = JSON.stringify({
-            "2499936": "Henderson car, clear name and number, reference 10-50 PD.",
-            "10-50": "Collision PD, PI, F"
-        });
-        readFileStub.resolves(mockContent);
-        
-        // Act
-        const logSpy = sinon.spy(console, 'log');
-        await processFile('mockFilePath', 'mockFileName');
-        
-        // Assert
-        assert.isTrue(logSpy.calledWith(`transcription: ${mockContent}`));
-        
-        // Cleanup
-        logSpy.restore();
+    afterEach(() => sinon.restore());
+
+    it('an invalid stored regex does not block other subscribers', async () => {
+        await addSub('bad-regex@example.com', '([unclosed');
+        await addSub('good@example.com', 'engine');
+        await fetchActiveSubscriptions();
+        const sendMailStub = sinon.stub(transporter, 'sendMail').resolves({});
+
+        await processFile(FIXTURE, path.basename(FIXTURE));
+
+        assert.equal(sendMailStub.callCount, 1, 'the valid subscriber must still be notified');
+        assert.equal(sendMailStub.firstCall.args[0].to, 'good@example.com');
     });
 
-    it('should not process any files if there are no new files to process', async function() {
-        // Arrange
-        readDirRecursiveStub.resolves([]);
-        
-        // Act
-        await checkTranscriptions();
-        
-        // Assert
-        sinon.assert.notCalled(processFileStub);
+    it('one failed email does not block other subscribers', async () => {
+        await addSub('first@example.com', 'engine');
+        await addSub('second@example.com', 'responding');
+        await fetchActiveSubscriptions();
+        const sendMailStub = sinon.stub(transporter, 'sendMail');
+        sendMailStub.onFirstCall().rejects(new Error('mailbox unavailable'));
+        sendMailStub.onSecondCall().resolves({});
+
+        await processFile(FIXTURE, path.basename(FIXTURE));
+
+        assert.equal(sendMailStub.callCount, 2, 'second subscriber must still be attempted');
     });
 
-    it('should skip already processed files', async function() {
-        // Arrange
-        const processedFileName = '20220101_000000.json';
-        const processedFilesSet = new Set([processedFileName]);
-        processedFiles.clear();
-        processedFiles.add(processedFileName);
-        readDirRecursiveStub.resolves([`./public/transcriptions/${processedFileName}`]);
-        
-        // Act
-        await checkTranscriptions();
-        
-        // Assert
-        sinon.assert.notCalled(processFileStub);
-        assert.isTrue(processedFilesSet.has(processedFileName));
+    it('does not hang on a catastrophic-backtracking subscription regex', async function () {
+        this.timeout(4000);
+        // This pattern melts a vanilla RegExp against a long letter run; the
+        // matcher must run in bounded time regardless of the stored pattern.
+        const evil = path.join(TMP_DIR, '20990101_000001_EVIL.txt');
+        fs.writeFileSync(evil, JSON.stringify({ radio: 'a'.repeat(42) }));
+        await addSub('redos@example.com', '(([a-z])+)+9');
+        await fetchActiveSubscriptions();
+        sinon.stub(transporter, 'sendMail').resolves({});
+
+        const start = Date.now();
+        await processFile(evil, path.basename(evil));
+        assert.ok(Date.now() - start < 1000, 'matching must complete in bounded time');
     });
 
-    it('should skip files older than the server boot time', async function() {
-        // Arrange
-        const oldFileName = '20220101_000000.json';
-        const oldFileDate = new Date('2022-01-01T00:00:00');
-        const serverBootTime = new Date('2022-01-02T00:00:00');
-        const lastProcessedTimestamp = '20220101_000000';
-        readDirRecursiveStub.resolves([`./public/transcriptions/${oldFileName}`]);
-        sandbox.stub(path, 'basename').returns(oldFileName);
-        sandbox.stub(Date, 'now').returns(serverBootTime.getTime());
-        
-        // Act
-        await checkTranscriptions();
-        
-        // Assert
-        sinon.assert.notCalled(processFileStub);
-        assert.strictEqual(lastProcessedTimestamp, '20220101_000000');
-    });
+    it('URL-encodes the regex in the notification search link', async () => {
+        await addSub('encode@example.com', 'engine \\d+');
+        await fetchActiveSubscriptions();
+        const sendMailStub = sinon.stub(transporter, 'sendMail').resolves({});
 
-    it('should skip files that have already been processed since the last check', async function() {
-        // Arrange
-        const lastProcessedFileName = '20220101_000000.json';
-        const lastProcessedTimestamp = '20220101_000000';
-        const newFileName = '20220102_000000.json';
-        readDirRecursiveStub.resolves([`./public/transcriptions/${newFileName}`]);
-        sandbox.stub(path, 'basename').returns(newFileName);
-        sandbox.stub(Date, 'now').returns(new Date('2022-01-02T00:00:00').getTime());
-        sandbox.stub(process, 'shouldProcessFile').returns(true);
-        sandbox.stub(processedFiles, 'has').returns(false);
-        sandbox.stub(process, 'processFile').resolves();
-        sandbox.stub(console, 'log');
-        lastProcessedFileName = newFileName;
-        
-        // Act
-        await checkTranscriptions();
-        
-        // Assert
-        sinon.assert.calledOnce(processFileStub);
-        sinon.assert.calledWith(processFileStub, `./public/transcriptions/${newFileName}`, newFileName);
-        assert.strictEqual(lastProcessedTimestamp, '20220102_000000');
-        assert.strictEqual(lastProcessedFileName, newFileName);
-        sinon.assert.calledWith(console.log, `Sending to processFile ${newFileName}`);
-    });
+        await processFile(FIXTURE, path.basename(FIXTURE));
 
-    it('should not process files that should not be processed', async function() {
-        // Arrange
-        const fileName = '20220102_000000.json';
-        readDirRecursiveStub.resolves([`./public/transcriptions/${fileName}`]);
-        sandbox.stub(path, 'basename').returns(fileName);
-        sandbox.stub(Date, 'now').returns(new Date('2022-01-02T00:00:00').getTime());
-        sandbox.stub(process, 'shouldProcessFile').returns(false);
-        sandbox.stub(console, 'log');
-        
-        // Act
-        await checkTranscriptions();
-        
-        // Assert
-        sinon.assert.notCalled(processFileStub);
-        sinon.assert.calledWith(console.log, `Skipping file ${fileName}`);
-    });
-
-    it('should not process the same file twice in a row', async function() {
-        // Arrange
-        const fileName = '20220102_000000.json';
-        readDirRecursiveStub.resolves([`./public/transcriptions/${fileName}`]);
-        sandbox.stub(path, 'basename').returns(fileName);
-        sandbox.stub(Date, 'now').returns(new Date('2022-01-02T00:00:00').getTime());
-        sandbox.stub(process, 'shouldProcessFile').returns(true);
-        sandbox.stub(processedFiles, 'has').returns(true);
-        sandbox.stub(console, 'log');
-        
-        // Act
-        await checkTranscriptions();
-        
-        // Assert
-        sinon.assert.notCalled(processFileStub);
-        sinon.assert.calledWith(console.log, `Skipping already processed file: ${fileName}`);
+        assert.equal(sendMailStub.callCount, 1);
+        const text = sendMailStub.firstCall.args[0].text;
+        assert.ok(text.includes(`/search?q=${encodeURIComponent('engine \\d+')}`),
+            `link should be URL-encoded, got: ${text.split('\n').pop()}`);
     });
 });

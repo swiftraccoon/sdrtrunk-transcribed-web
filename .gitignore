@@ -9,3 +9,5 @@ public/transcriptions/9999
 config.js
 server.cert
 server.key
+test/.tmp/
+.DS_Store

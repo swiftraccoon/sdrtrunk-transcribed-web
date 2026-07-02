@@ -15,12 +15,17 @@ const transporter = nodemailer.createTransport({
   host: EMAIL_HOST,
   port: EMAIL_PORT,
   secure: false,
+  // Refuse to send unless STARTTLS is negotiated. Operators relaying through a
+  // plaintext-only internal server can set requireTLS:false in config.js.
+  requireTLS: config.requireTLS !== false,
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASS
   }
 });
 
+// Throws on failure so callers can respond honestly (e.g. /subscribe should
+// not report success when the confirmation email never went out).
 const sendEmail = async (to, subject, text) => {
   const mailOptions = {
     from: EMAIL_USER, // sender address
@@ -29,12 +34,8 @@ const sendEmail = async (to, subject, text) => {
     text: text       // plain text body
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Email sent to ${to}`);
-  } catch (error) {
-    console.error(`Error sending email: ${error}`);
-  }
+  await transporter.sendMail(mailOptions);
+  console.log(`Email sent to ${to}`);
 };
 
 const sendEmailWithRateLimit = async (email, subject, body) => {
@@ -54,16 +55,14 @@ const sendEmailWithRateLimit = async (email, subject, body) => {
 
   // Check rate limits
   if (hourlyEmailCount >= config.maxHourlyEmails || dailyEmailCount >= config.maxDailyEmails) {
-    console.log("Rate limit reached. Email not sent.");
-    return;
+    throw new Error("Email rate limit reached; not sent.");
   }
 
-  // Send the email
+  // Send the email; counters only track emails that actually went out
   await sendEmail(email, subject, body);
-
-  // Update counters
   hourlyEmailCount++;
   dailyEmailCount++;
 };
 
-module.exports = sendEmailWithRateLimit;
+// transporter is exported so tests can stub sendMail
+module.exports = { sendEmailWithRateLimit, transporter };

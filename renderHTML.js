@@ -1,6 +1,7 @@
 // Module imports
 const path = require('path');
 const config = require('./config');
+const { escapeHTML } = require('./utility');
 
 // Configuration settings from config
 const WEB_nodeID = config.WEB_nodeID;
@@ -70,6 +71,10 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                                     <input type="number" id="refreshInterval" name="refreshRate" min="1" max="60" value="5" style="width: 15px;"> min
                                 </div>
                                 <button type="submit">Apply</button>
+                </form>
+                <form action="/logout" method="post" style="display:inline">
+                    <input type="hidden" name="_csrf" value="${csrfToken}">
+                    <button type="submit">Logout</button>
                 </form>
             </div>
             </div>
@@ -158,15 +163,23 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
         let idDescription = idDescriptionMap[t.id] ? ` (${idDescriptionMap[t.id]})` : '';  // Get the description if available
         let ridDescription = radio_id_names[rid] ? ` (${radio_id_names[rid]})` : '';  // Get the description if available
 
+        // Directory/file names and transcription text come from outside the
+        // app (radio traffic, transcriber output) — escape before rendering.
+        // Ids ride in data-* attributes, never inline handlers: HTML entities
+        // decode before the JS engine runs, so onclick="...('${id}')" is
+        // injectable even when the id is HTML-escaped.
+        const safeId = escapeHTML(t.id);
+        const safeRid = escapeHTML(rid);
+        const filterLinks = `(TGID: <a href="javascript:void(0);" class="tgid-filter" data-tgid="${safeId}">${safeId}${idDescription}</a>, RID: <a href="javascript:void(0);" class="rid-filter" data-rid="${safeRid}">${safeRid}${ridDescription}</a>)`;
         let dateDisplay = dateMatch
-            ? `${dateMatch[0].slice(0, 4)}-${dateMatch[0].slice(4, 6)}-${dateMatch[0].slice(6, 8)} ${dateMatch[0].slice(9, 11)}:${dateMatch[0].slice(11, 13)}:${dateMatch[0].slice(13, 15)} (TGID: <a href="javascript:void(0);" onclick="updateTGIDFilterAndRefresh('${t.id}')">${t.id}${idDescription}</a>, RID: <a href="javascript:void(0);" onclick="updateRIDFilterAndRefresh('${rid}')">${rid}${ridDescription}</a>)`  // Append the description
-            : `Unknown Date (TGID: <a href="javascript:void(0);" onclick="updateTGIDFilterAndRefresh('${t.id}')">${t.id}${idDescription}</a>, RID: <a href="javascript:void(0);" onclick="updateRIDFilterAndRefresh('${rid}')">${rid}${ridDescription}</a>)`;  // Append the description
+            ? `${dateMatch[0].slice(0, 4)}-${dateMatch[0].slice(4, 6)}-${dateMatch[0].slice(6, 8)} ${dateMatch[0].slice(9, 11)}:${dateMatch[0].slice(11, 13)}:${dateMatch[0].slice(13, 15)} ${filterLinks}`
+            : `Unknown Date ${filterLinks}`;
         return `
                                 <h3>${dateDisplay}</h3>
-                                <p>${t.transcription}</p>
+                                <p>${escapeHTML(t.transcription)}</p>
                                 <div class="audio-player">
                                     <audio id="audio">
-                                        <source src="${t.audio}" type="audio/mp3">
+                                        <source src="${escapeHTML(t.audio)}" type="audio/mp3">
                                     </audio>
                                     <button onclick="playPauseAudio(this)" class="playPauseBtn">Play</button>
                                 </div>
@@ -252,21 +265,19 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                     }, refreshRateValue * 60 * 1000);
                 }
                 document.addEventListener('DOMContentLoaded', function() {
-                    // Fetch all audio elements and buttons
-                    let audios = document.querySelectorAll('audio');
-                    let buttons = document.querySelectorAll('.playPauseBtn');
-                
-                    buttons.forEach((button, index) => {
-                        let audio = audios[index];
-                        
-                        button.addEventListener('click', function() {
-                            playPauseAudio(audio, button);
-                        });
-                        
+                    // Reset button label when a clip finishes
+                    document.querySelectorAll('.audio-player').forEach(player => {
+                        const audio = player.querySelector('audio');
+                        const button = player.querySelector('.playPauseBtn');
                         audio.addEventListener('ended', function() {
                             button.innerText = 'Play';
                         });
                     });
+                    // Filter links carry their ids in data attributes
+                    document.querySelectorAll('.tgid-filter').forEach(a =>
+                        a.addEventListener('click', () => updateTGIDFilterAndRefresh(a.dataset.tgid)));
+                    document.querySelectorAll('.rid-filter').forEach(a =>
+                        a.addEventListener('click', () => updateRIDFilterAndRefresh(a.dataset.rid)));
                 });
                 function playPauseAudio(button) {
                     let audio = button.previousElementSibling;
@@ -301,59 +312,6 @@ function renderHTML(transcriptions, defaultStartDate, defaultStartTime, defaultE
                     params.set('radioIds', rid);
                     url.search = params.toString();
                     window.location.href = url.toString();
-                }
-                function subscribe() {
-                    console.log("Subscribe button clicked");
-                    const regex = document.getElementById('regex').value;
-                    const email = document.getElementById('email').value;
-
-                    // AJAX call to subscribe
-                    fetch('/subscribe', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-csrf-token': '${csrfToken}'
-                        },
-                        body: JSON.stringify({ regex, email })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            alert('Subscription successful. Please check your email for confirmation.');
-                        } else {
-                            alert('Subscription failed. Please try again.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again.');
-                    });
-                }
-                function unsubscribe() {
-                    console.log("Unsubscribe button clicked");
-                    const email = document.getElementById('email').value;
-
-                    // AJAX call to unsubscribe
-                    fetch('/unsubscribe', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-csrf-token': '${csrfToken}'
-                        },
-                        body: JSON.stringify({ email })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            alert('Successfully unsubscribed.');
-                        } else {
-                            alert('Unsubscription failed. Please try again.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again.');
-                    });
                 }
             </script>
         </body>

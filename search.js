@@ -6,28 +6,38 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 let cache = {};
 
 const loadCache = async () => {
+  const nextCache = {};
+  let dirs;
   try {
-    const dirs = await fs.promises.readdir(path.join(PUBLIC_DIR, 'audio'));
+    dirs = await fs.promises.readdir(path.join(PUBLIC_DIR, 'audio'));
+  } catch (error) {
+    // Preserve whatever is already indexed rather than wiping a warm cache
+    // on a transient failure (EMFILE, unmounted volume, etc.).
+    console.error("Error loading cache:", error);
+    return;
+  }
 
-    for (const dir of dirs) {
+  for (const dir of dirs) {
+    // A directory that fails (e.g. audio exists but transcriptions don't yet)
+    // must not abort the rest of the cache load.
+    try {
       const dirPath = path.join(PUBLIC_DIR, 'transcriptions', dir);
       const files = await fs.promises.readdir(dirPath);
 
       for (const fileName of files) {
         const filePath = path.join(dirPath, fileName);
         const content = await fs.promises.readFile(filePath, 'utf-8');
-        const parts = filePath.split('/');
-        const dirName = parts[parts.length - 2];
-        cache[filePath] = {
+        nextCache[filePath] = {
           content: content,
-          dir: dirName,
+          dir: dir,
           file: fileName
         };
       }
+    } catch (error) {
+      console.error(`Error loading cache for directory ${dir}:`, error);
     }
-  } catch (error) {
-    console.error("Error loading cache:", error);
   }
+  cache = nextCache;
 };
 
 async function searchTranscriptions(query) {
@@ -58,15 +68,13 @@ async function searchTranscriptions(query) {
 
 const updateCacheForDirectory = async (dirPath) => {
   try {
-    const files = await fs.readdir(dirPath);
+    const files = await fs.promises.readdir(dirPath);
     for (const fileName of files) {
       const filePath = path.join(dirPath, fileName);
-      const content = await fs.readFile(filePath, 'utf-8');
-      const parts = filePath.split('/');
-      const dirName = parts[parts.length - 2];
+      const content = await fs.promises.readFile(filePath, 'utf-8');
       cache[filePath] = {
         content: content,
-        dir: dirName,
+        dir: path.basename(dirPath),
         file: fileName
       };
     }
@@ -125,10 +133,9 @@ const watchDirectories = () => {
   };
 };
 
-// Initialize cache and set up file watchers
-watchDirectories();
-
 module.exports = {
   searchTranscriptions,
-  loadCache
+  loadCache,
+  watchDirectories,
+  updateCacheForDirectory
 };

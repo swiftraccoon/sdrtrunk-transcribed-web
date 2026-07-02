@@ -1,0 +1,4 @@
+require: ./test/helpers/setup.js
+spec: ./test/*.test.js
+exit: true
+timeout: 5000

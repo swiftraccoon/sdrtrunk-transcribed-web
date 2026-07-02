@@ -10,12 +10,20 @@ const crypto = require('crypto');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 
-function isWithinDateRange(fileName, startDate, endDate) {
-    let dateMatch = fileName.match(/(\d{4}\d{2}\d{2})_(\d{2}\d{2}\d{2})/);
-    if (!dateMatch) return false;
+// sdrtrunk stamps filenames in the capture host's LOCAL time, so parse them as
+// local (via the multi-arg Date constructor). This is the single source of
+// truth for filename->Date shared by the home-page filter and the notifier
+// (checkTranscriptions.js), keeping them from drifting apart.
+function parseLocalTimestamp(ts) {
+    const m = String(ts).match(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/);
+    if (!m) return null;
+    return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
+}
 
-    let fileDateTimeStr = `${dateMatch[1].slice(0, 4)}-${dateMatch[1].slice(4, 6)}-${dateMatch[1].slice(6, 8)}T${dateMatch[2].slice(0, 2)}:${dateMatch[2].slice(2, 4)}:${dateMatch[2].slice(4, 6)}Z`;
-    let fileDateTime = new Date(fileDateTimeStr);
+
+function isWithinDateRange(fileName, startDate, endDate) {
+    let fileDateTime = parseLocalTimestamp(fileName);
+    if (!fileDateTime) return false;
 
     if (startDate && fileDateTime < startDate) return false;
     if (endDate && fileDateTime > endDate) return false;
@@ -25,11 +33,8 @@ function isWithinDateRange(fileName, startDate, endDate) {
 
 
 function extractDateFromFilename(fileName) {
-    let dateMatch = fileName.match(/\d{4}\d{2}\d{2}_\d{2}\d{2}\d{2}/);
-    if (!dateMatch) return new Date(0); // if the filename does not have a date, return a default old date
-
-    let fileDateStr = dateMatch[0].slice(0, 4) + '-' + dateMatch[0].slice(4, 6) + '-' + dateMatch[0].slice(6, 8) + 'T' + dateMatch[0].slice(9, 11) + ':' + dateMatch[0].slice(11, 13) + ':' + dateMatch[0].slice(13, 15) + 'Z';
-    return new Date(fileDateStr);
+    // if the filename has no timestamp, return a default old date
+    return parseLocalTimestamp(fileName) || new Date(0);
 }
 
 const formatDate = (dateObj) => moment(dateObj).format('YYYY-MM-DD');
@@ -103,6 +108,14 @@ const generateConfirmationId = () => {
     return crypto.randomBytes(24).toString('hex');
 };
 
+// Escape untrusted text before interpolating into HTML markup or attributes
+const escapeHTML = (value) => String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 module.exports = {
     isWithinDateRange,
     extractDateFromFilename,
@@ -112,5 +125,7 @@ module.exports = {
     getQueryParams,
     getDefaultDateTime,
     processDirectory,
-    generateConfirmationId
+    generateConfirmationId,
+    escapeHTML,
+    parseLocalTimestamp
 };

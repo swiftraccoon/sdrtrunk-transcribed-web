@@ -1,7 +1,9 @@
 const config = require('./config');
 const fs = require('fs').promises;
 const path = require('path');
-const sendEmailWithRateLimit = require('./email');
+const RE2 = require('re2');
+const { parseLocalTimestamp } = require('./utility');
+const { sendEmailWithRateLimit } = require('./email');
 const db = require('./database');
 const myEmitter = require('./events');
 
@@ -21,15 +23,16 @@ const fetchActiveSubscriptions = () => {
                 return;
             }
             subscriptions = rows;
-            console.log(`Fetched subscriptions: ${JSON.stringify(rows)}`);
+            console.log(`Fetched ${rows.length} active subscription(s)`);
             resolve(rows);
         });
     });
 };
 
-fetchActiveSubscriptions();
-console.log(`subscriptions: ${JSON.stringify(subscriptions)}`);
-myEmitter.on('emailVerified', fetchActiveSubscriptions);
+fetchActiveSubscriptions().catch((err) => console.error("Error fetching subscriptions:", err));
+myEmitter.on('emailVerified', () => {
+    fetchActiveSubscriptions().catch((err) => console.error("Error refreshing subscriptions:", err));
+});
 
 const readDirRecursive = async (dir) => {
     const dirents = await fs.readdir(dir, { withFileTypes: true });
@@ -50,9 +53,7 @@ const shouldProcessFile = (fileName) => {
     const match = fileName.match(/^(\d{8}_\d{6})/);
     if (!match) return false;
 
-    const timestampStr = match[1];
-    const fileDate = new Date(timestampStr.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
-
+    const fileDate = parseLocalTimestamp(match[1]);
     return fileDate > serverBootTime;
 };
 
@@ -61,19 +62,26 @@ const processFile = async (filePath, fileName) => {
     let transcription;
     try {
         transcription = JSON.parse(content);
-        const allText = JSON.stringify(transcription);
-        console.log(`transcription: ${allText}`)
     } catch (e) {
         console.error(`${e} for ${fileName}`);
         return;
     }
+    const allText = JSON.stringify(transcription);
 
     for (const sub of subscriptions) {
-        const regex = new RegExp(sub.regex, 'i');
-        console.log(`regex: ${regex}`)
-        const allText = JSON.stringify(transcription);
-        if (regex.test(allText)) {
-            await sendEmailWithRateLimit(sub.email, `${config.EMAIL_SUBJ_PREFIX}${sub.regex}${config.EMAIL_SUBJ_SUFFIX}`, `${fileName}\n${allText}\n${config.WEB_URL}/search?q=${sub.regex}`);
+        // One bad subscription (invalid stored regex, bounced email, rate
+        // limit) must not block notifications for the remaining subscribers.
+        try {
+            // RE2 guarantees linear-time matching, so a catastrophic-
+            // backtracking pattern can never stall this event-loop scan.
+            const regex = new RE2(sub.regex, 'i');
+            if (regex.test(allText)) {
+                await sendEmailWithRateLimit(sub.email,
+                    `${config.EMAIL_SUBJ_PREFIX}${sub.regex}${config.EMAIL_SUBJ_SUFFIX}`,
+                    `${fileName}\n${allText}\n${config.WEB_URL}/search?q=${encodeURIComponent(sub.regex)}`);
+            }
+        } catch (error) {
+            console.error(`Error notifying subscriber for ${fileName}:`, error);
         }
     }
 };
@@ -99,7 +107,7 @@ const checkTranscriptions = async () => {
             if (!match) continue;
 
             const timestamp = match[1];
-            const fileDate = new Date(timestamp.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
+            const fileDate = parseLocalTimestamp(timestamp);
 
             // Skip files older than the server boot time and break the loop
             if (fileDate <= serverBootTime) {
@@ -129,4 +137,4 @@ const checkTranscriptions = async () => {
     }
 };
 
-module.exports = { checkTranscriptions, processFile };
+module.exports = { checkTranscriptions, processFile, fetchActiveSubscriptions };
